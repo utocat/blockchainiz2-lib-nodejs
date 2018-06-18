@@ -83,6 +83,20 @@ describe('GET Bitcoin notaries', () => {
   });
 });
 
+describe('GET Bitcoin infos', () => {
+  it('should return bitcoin prices', done => {
+    blockchainiz.getBitcoinInfos((err, res) => {
+      if (err) {
+        console.log(err);
+      }
+      should.exist(res.bitcoinPrice);
+      should.exist(res.timestamp);
+      should.not.exist(err);
+      done();
+    });
+  });
+});
+
 /// Tests /////////////////////////////////////////////////////////////////////
 // test are commented because the bitcoin route are not finish on the api
 

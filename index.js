@@ -11,10 +11,19 @@ module.exports = options =>
     // /notaries GET
     getBitcoinNotariesList: bitcoin.getBitcoinNotariesList(options),
 
+    // /notaries/:id GET
+    getBitcoinNotariesById: bitcoin.getBitcoinNotariesById(options),
+
+    // /notaries/infos GET by Id
+    getBitcoinInfos: bitcoin.getBitcoinInfos(options),
+
     // ________________Ethereum_______________ //
 
     // /nodes GET
     getEthereumNodes: ethereum.getNodes(options),
+
+    // /infos GET
+    getEthereumInfos: ethereum.getInfos(options),
 
     // /contracts POST
     postEthereumContract: ethereum.postContracts(options),
@@ -61,4 +70,12 @@ module.exports = options =>
     // /rawtransactions GET
     getEthereumRawTransactionList: ethereum.getEthereumRawTransactionList(options),
 
+    // /wallets POST
+    postEthereumWallets: ethereum.postWallets(options),
+
+    // /wallets/:id/balance GET
+    getEthereumWalletBalance: ethereum.getWalletBalance(options),
+
+    // /wallets GET
+    getEthereumWalletsList: ethereum.getWalletsList(options),
   });

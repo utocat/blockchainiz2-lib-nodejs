@@ -17,7 +17,7 @@ const Helper = require('../helper');
 // exports.getTransactionsByTxid = opt => (txid, callback) => {
 //   // Check the txid parameter
 //   if (typeof txid !== 'string') {
-//     callback('invalid parameters', null);
+//     callback(new Error('invalid parameters'), null);
 //     return;
 //   }
 //
@@ -40,7 +40,7 @@ exports.postBitcoinNotaries = opt => (functionParameters, callback) => {
     typeof functionParameters.format !== 'string' ||
     typeof functionParameters.callbackUrl !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -63,7 +63,7 @@ exports.getBitcoinNotariesList = opt => (functionParameters, callback) => {
     typeof functionParameters.page !== 'number' ||
     typeof functionParameters.perPage !== 'number'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -79,4 +79,36 @@ exports.getBitcoinNotariesList = opt => (functionParameters, callback) => {
       else callback(null, body);
     },
   );
+};
+
+exports.getBitcoinNotariesById = opt => (functionParameters, callback) => {
+  if (
+    typeof functionParameters.notariesId !== 'string' ||
+    typeof functionParameters.format !== 'string'
+  ) {
+    callback(new Error('invalid parameters'), null);
+    return;
+  }
+
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(
+    opt,
+    {},
+    `bitcoin/notaries/${functionParameters.notariesId}?format=${functionParameters.format}`,
+    'GET',
+    (err, res, body) => {
+      /* istanbul ignore if */
+      if (err) callback(err, null);
+      else callback(null, body);
+    },
+  );
+};
+
+exports.getBitcoinInfos = opt => (callback) => {
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(opt, {}, 'bitcoin/infos', 'GET', (err, res, body) => {
+    /* istanbul ignore if */
+    if (err) callback(err, null);
+    else callback(null, body);
+  });
 };

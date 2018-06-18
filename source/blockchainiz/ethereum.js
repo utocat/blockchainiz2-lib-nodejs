@@ -14,7 +14,7 @@ exports.getContractsList = opt => (functionParameters, callback) => {
     typeof functionParameters.page !== 'number' ||
     typeof functionParameters.perPage !== 'number'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -36,22 +36,15 @@ exports.postContracts = opt => (functionParameters, callback) => {
   // eslint-disable-line
   if (
     typeof functionParameters.language !== 'string' ||
-    typeof functionParameters.sourceCode !== 'string' ||
-    !Array.isArray(functionParameters.parameters) ||
-    typeof functionParameters.name !== 'string'
+    typeof functionParameters.sourceCode !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
-  let minedCallback;
-  let pushedCallback;
+  let address;
 
-  if (functionParameters.pushedCallback) {
-    pushedCallback = functionParameters.pushedCallback;
-  }
-
-  if (functionParameters.minedCallback) {
-    minedCallback = functionParameters.minedCallback;
+  if (functionParameters.walletAddress) {
+    address = functionParameters.walletAddress;
   }
 
   const rawBody = {
@@ -59,9 +52,11 @@ exports.postContracts = opt => (functionParameters, callback) => {
     sourceCode: functionParameters.sourceCode,
     parameters: functionParameters.parameters,
     name: functionParameters.name,
-    pushedCallback,
-    minedCallback,
+    address,
+    pushedCallback: functionParameters.pushedCallback,
+    minedCallback: functionParameters.minedCallback,
   };
+
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(opt, rawBody, 'ethereum/contracts', 'POST', (err, res, body) => {
     /* istanbul ignore if */
@@ -77,22 +72,28 @@ exports.callContractsNoConstantFunction = opt => (functionParameters, callback) 
     typeof functionParameters.functionName !== 'string' ||
     !Array.isArray(functionParameters.functionParameters)
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
   let minedCallback;
   let pushedCallback;
+  let address;
 
   if (functionParameters.pushedCallback) {
-    pushedCallback = functionParameters.pushedCallback;
+    ({ pushedCallback } = functionParameters);
   }
 
   if (functionParameters.minedCallback) {
-    minedCallback = functionParameters.minedCallback;
+    ({ minedCallback } = functionParameters);
+  }
+
+  if (functionParameters.walletAddress) {
+    address = functionParameters.walletAddress;
   }
 
   const rawBody = {
     functionParameters: functionParameters.functionParameters,
+    address,
     pushedCallback,
     minedCallback,
   };
@@ -119,7 +120,7 @@ exports.callContractsConstantFunction = opt => (parameters, callback) => {
     typeof parameters.functionName !== 'string' ||
     !Array.isArray(parameters.functionParameters)
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
   // Do the request to blockchainiz via the helper function
@@ -138,7 +139,7 @@ exports.callContractsConstantFunction = opt => (parameters, callback) => {
 
 exports.getContractsById = opt => (functionParameters, callback) => {
   if (typeof functionParameters.contractId !== 'string') {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -158,7 +159,7 @@ exports.getContractsById = opt => (functionParameters, callback) => {
 
 exports.getNoConstantFuncById = opt => (functionParameters, callback) => {
   if (typeof functionParameters.functionId !== 'string') {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -181,7 +182,7 @@ exports.getNoConstantFuncList = opt => (functionParameters, callback) => {
     typeof functionParameters.page !== 'number' ||
     typeof functionParameters.perPage !== 'number'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -203,10 +204,11 @@ exports.getNoConstantFuncList = opt => (functionParameters, callback) => {
 
 exports.subscribeEthereumEvent = opt => (functionParameters, callback) => {
   if (
+    typeof functionParameters.contractId !== 'string' ||
     typeof functionParameters.eventName !== 'string' ||
     typeof functionParameters.callbackUrl !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -232,7 +234,7 @@ exports.unsubscribeEthereumEvent = opt => (functionParameters, callback) => {
     typeof functionParameters.contractId !== 'string' ||
     typeof functionParameters.subscriptionId !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -257,7 +259,7 @@ exports.getEthereumSubscribtion = opt => (functionParameters, callback) => {
     typeof functionParameters.contractId !== 'string' ||
     typeof functionParameters.subscriptionId !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -282,7 +284,7 @@ exports.getEthereumEventsBySubscription = opt => (functionParameters, callback) 
     typeof functionParameters.contractId !== 'string' ||
     typeof functionParameters.subscriptionId !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -307,7 +309,7 @@ exports.getEthereumEvent = opt => (functionParameters, callback) => {
     typeof functionParameters.contractId !== 'string' ||
     typeof functionParameters.eventId !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -330,7 +332,7 @@ exports.postEthereumRawTransaction = opt => (functionParameters, callback) => {
     typeof functionParameters.format !== 'string' ||
     typeof functionParameters.rawtransaction !== 'string'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -338,11 +340,11 @@ exports.postEthereumRawTransaction = opt => (functionParameters, callback) => {
   let pushedCallback;
 
   if (functionParameters.pushedCallback) {
-    pushedCallback = functionParameters.pushedCallback;
+    ({ pushedCallback } = functionParameters);
   }
 
   if (functionParameters.minedCallback) {
-    minedCallback = functionParameters.minedCallback;
+    ({ minedCallback } = functionParameters);
   }
 
   // Do the request to blockchainiz via the helper function
@@ -366,7 +368,7 @@ exports.postEthereumRawTransaction = opt => (functionParameters, callback) => {
 
 exports.getEthereumRawTransaction = opt => (functionParameters, callback) => {
   if (typeof functionParameters.rawtransactionId !== 'string') {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -389,7 +391,7 @@ exports.getEthereumRawTransactionList = opt => (functionParameters, callback) =>
     typeof functionParameters.page !== 'number' ||
     typeof functionParameters.perPage !== 'number'
   ) {
-    callback('invalid parameters', null);
+    callback(new Error('invalid parameters'), null);
     return;
   }
 
@@ -407,4 +409,63 @@ exports.getEthereumRawTransactionList = opt => (functionParameters, callback) =>
       else callback(null, body);
     },
   );
+};
+
+exports.getInfos = opt => (callback) => {
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(opt, {}, 'ethereum/infos', 'GET', (err, res, body) => {
+    /* istanbul ignore if */
+    if (err) callback(err, null);
+    else callback(null, body);
+  });
+};
+
+exports.getWalletsList = opt => (callback) => {
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(opt, {}, 'ethereum/wallets', 'GET', (err, res, body) => {
+    /* istanbul ignore if */
+    if (err) callback(err, null);
+    else callback(null, body);
+  });
+};
+
+exports.getWalletBalance = opt => (functionParameters, callback) => {
+  if (
+    typeof functionParameters.walletAddress !== 'string' ||
+    typeof functionParameters.unit !== 'string'
+  ) {
+    callback(new Error('invalid parameters'), null);
+    return;
+  }
+
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(
+    opt,
+    {},
+    `ethereum/wallets/${functionParameters.walletAddress}/balance?unit=${functionParameters.unit}`,
+    'GET',
+    (err, res, body) => {
+      /* istanbul ignore if */
+      if (err) callback(err, null);
+      else callback(null, body);
+    },
+  );
+};
+
+exports.postWallets = opt => (functionParameters, callback) => {
+  // eslint-disable-line
+  if (typeof functionParameters.default !== 'boolean') {
+    callback(new Error('invalid parameters'), null);
+    return;
+  }
+
+  const rawBody = {
+    default: functionParameters.default,
+  };
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(opt, rawBody, 'ethereum/wallets', 'POST', (err, res, body) => {
+    /* istanbul ignore if */
+    if (err) callback(err, null);
+    else callback(null, body);
+  });
 };

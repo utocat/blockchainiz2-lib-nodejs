@@ -7,9 +7,9 @@ contract testSmartContract {
 
     event statusChange(address indexed _adresse, uint8  _status );
 
-    function Test() public {
+    function testSmartContract(uint8 status) public {
         _owner = msg.sender;
-        _status = 0;
+        _status = status;
     }
 
     function get() public constant returns (address a ,uint8 b,string ) {

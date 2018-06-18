@@ -1,6 +1,6 @@
 {
-  "name": "blockchainiz",
-  "version": "1.3.2",
+  "name": "blockchainiz2",
+  "version": "2.0.0",
   "description": "A node library to interact more easily with the Blockchainiz API",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/utocat/lib-blockchainiz-node.git"
+    "url": "git+https://github.com/utocat/blockchainiz2-lib-nodejs.git"
   },
   "keywords": [
     "blockchain",
@@ -24,23 +24,22 @@
   "author": "Utocat (Kevin Bockelandt)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/utocat/lib-blockchainiz-node/issues"
+    "url": "https://github.com/utocat/blockchainiz2-lib-nodejs/issues"
   },
-  "homepage": "https://github.com/utocat/lib-blockchainiz-node#readme",
+  "homepage": "https://github.com/utocat/blockchainiz2-lib-nodejs#readme",
   "dependencies": {
     "coveralls": "^2.11.12",
     "dotenv": "^2.0.0",
-    "eslint-config-utocat": "git+https://deployutocat:hKD6jPCwpqGwNuUhY3LW@gitlab.com/utocat/eslint-config-utocat.git",
     "istanbul": "^0.4.4",
     "mocha": "^4.0.1",
     "prettier": "^1.10.2",
-    "request": "^2.74.0",
+    "request": "^2.87.0",
     "should": "^10.0.0"
   },
   "devDependencies": {
-    "eslint": "^3.12.2",
-    "eslint-config-airbnb-base": "^11.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "nsp": "^3.1.0"
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "nsp": "^3.2.1"
   }
 }

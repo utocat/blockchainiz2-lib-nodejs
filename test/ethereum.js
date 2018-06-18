@@ -5,12 +5,59 @@ const blockchainiz = require('../index.js')({
   privateKey: process.env.API_PRIVATE_KEY,
   useSandbox: true,
 });
+const postBin = require('./lib/postbin');
 
+const testWallet = '0x2bc2239448959a1ae54747c28827b2ad7d20006c';
+// default wallet 0x8f136c013b1c541a7971c9dfbd0866c60f362f0a
+// https://ropsten.etherscan.io/address/0x2bc2239448959a1ae54747c28827b2ad7d20006c
+// https://ropsten.etherscan.io/address/0x8f136c013b1c541a7971c9dfbd0866c60f362f0a
+let newWallet;
 let scId;
 let functionId;
 let rawTransactionId;
 let subscriptionId;
+let eventId;
+
 /// Tests /////////////////////////////////////////////////////////////////////
+
+describe('POST Ethereum wallets', () => {
+  it('should return the wallet address', done => {
+    blockchainiz.postEthereumWallets({ default: false }, (err, res) => {
+      if (err) {
+        console.log(err);
+      }
+      should.not.exist(err);
+      newWallet = res.walletAddress;
+      should.exist(res.walletAddress);
+      done();
+    });
+  });
+
+  it('should return the created wallet address', done => {
+    blockchainiz.getEthereumWalletsList((err, res) => {
+      if (err) {
+        console.log(err);
+      }
+      should.not.exist(err);
+      res.addresses.should.containEql(newWallet);
+      done();
+    });
+  });
+});
+describe('GET Wallet balance', () => {
+  it('should return 0 balance for the created wallet', done => {
+    blockchainiz.getEthereumWalletBalance({ walletAddress: newWallet, unit: 'wei' }, (err, res) => {
+      if (err) {
+        console.log(err);
+      }
+      should.not.exist(err);
+      res.balance.should.be.equal('0');
+      res.unit.should.be.equal('wei');
+      res.address.should.be.equal(newWallet);
+      done();
+    });
+  });
+});
 
 describe('GET Ethereum nodes infos', () => {
   it('should return infos about the Ethereum node used by the API', done => {
@@ -26,42 +73,80 @@ describe('GET Ethereum nodes infos', () => {
 });
 
 describe('POST Ethereum contracts', () => {
-  it('should return the id of the Contract Uploaded', done => {
+  it('should return the id of the Contract Uploaded for default wallet', () => {
     const sourceCode = fs.readFileSync('./test_data/testSmartContract.sol', 'utf8');
-
-    const testStatus = () => {
-      blockchainiz.getContractsById({ contractId: scId }, (errored, responsed) => {
-        if (errored) {
-          done(errored);
-        }
-        if (responsed.status === 'mined') {
-          done();
-        } else {
-          setTimeout(testStatus, 5000);
-        }
+    return postBin
+      .getUrl()
+      .then(data => {
+        blockchainiz.postEthereumContract(
+          {
+            language: 'solidity',
+            sourceCode: sourceCode,
+            parameters: [15],
+            name: 'testSmartContract',
+            pushedCallback: data.url + '?type=pushed',
+            minedCallback: data.url + '?type=mined',
+          },
+          (err, res) => {
+            if (err) {
+              throw err;
+            }
+            scId = res.id;
+            should.exist(res.id);
+            should.not.exist(err);
+          },
+        );
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(scId);
+        data.query.type.should.be.equal('pushed');
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(scId);
+        data.query.type.should.be.equal('mined');
+        return postBin.deleteBin(data.binId);
       });
-    };
+  }).timeout(120000);
 
-    blockchainiz.postEthereumContract(
-      {
-        language: 'solidity',
-        sourceCode: sourceCode,
-        parameters: [],
-        name: 'testSmartContract',
-        pushedCallback: 'http://test/pushedCallback',
-        minedCallback: 'http://test/minedCallback',
-      },
-      (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        scId = res.id;
-        should.exist(res.id);
-        should.not.exist(err);
-        setTimeout(testStatus, 5000);
-      },
-    );
-  }).timeout(50000);
+  it('should return the id of the Contract Uploaded for a wallet', () => {
+    const sourceCode = fs.readFileSync('./test_data/testSmartContract.sol', 'utf8');
+    return postBin
+      .getUrl()
+      .then(data => {
+        blockchainiz.postEthereumContract(
+          {
+            language: 'solidity',
+            sourceCode: sourceCode,
+            parameters: [20],
+            name: 'testSmartContract',
+            walletAddress: testWallet,
+            pushedCallback: data.url + '?type=pushed',
+            minedCallback: data.url + '?type=mined',
+          },
+          (err, res) => {
+            if (err) {
+              console.log(err);
+            }
+            scId = res.id;
+            should.exist(res.id);
+            should.not.exist(err);
+          },
+        );
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(scId);
+        data.query.type.should.be.equal('pushed');
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(scId);
+        data.query.type.should.be.equal('mined');
+        return postBin.deleteBin(data.binId);
+      });
+  }).timeout(120000);
 
   it('should return the id of the Contract Uploaded without callbackUrl', done => {
     const sourceCode = fs.readFileSync('./test_data/testSmartContract.sol', 'utf8');
@@ -98,7 +183,7 @@ describe('POST Ethereum contracts', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -116,7 +201,16 @@ describe('GET Ethereum contracts', () => {
       should.exist(res.abi);
       res.status.should.be.equal('mined');
       should.exist(res.status);
-      should.exist(res.language);
+      res.language.should.be.equal('solidity');
+      res.parameters.should.be.deepEqual([20]);
+      res.name.should.be.deepEqual('testSmartContract');
+      should.exist(res.infosCompilation);
+      should.exist(res.etherPrice);
+      should.exist(res.timestampsInMs.apiRequest);
+      should.exist(res.timestampsInMs.pushedInBlockchain);
+      should.exist(res.timestampsInMs.minedInBlockchain);
+      should.exist(res.timestampsInMs.response);
+      should.exist(res.gasPriceInWei);
       should.not.exist(err);
       done();
     });
@@ -127,7 +221,7 @@ describe('GET Ethereum contracts', () => {
       if (res) {
         console.log(res);
       }
-      err.should.be.equal('invalid parameters');
+      err.message.should.be.equal('invalid parameters');
       should.not.exist(res);
       done();
     });
@@ -156,12 +250,14 @@ describe('GET Ethereum contracts list', () => {
       {
         page: 'toto',
         perPage: 'toto',
+        sortBy: 'titi',
+        sortOrder: 'tata',
       },
       (err, res) => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -181,7 +277,7 @@ describe('POST Ethereum call function constant', () => {
         if (err) {
           console.log(err);
         }
-        res.data.status.should.be.equal('0');
+        res.data.status.should.be.equal('20');
         should.not.exist(err);
         done();
       },
@@ -199,8 +295,8 @@ describe('POST Ethereum call function constant', () => {
         if (err) {
           console.log(err);
         }
-        res.data.a.should.be.equal('0x0000000000000000000000000000000000000000');
-        res.data.b.should.be.equal('0');
+        res.data.a.should.be.equal('0x2bc2239448959a1ae54747c28827b2ad7d20006c');
+        res.data.b.should.be.equal('20');
         res.data[2].should.be.equal('0.0.1');
         should.not.exist(err);
         done();
@@ -219,7 +315,7 @@ describe('POST Ethereum call function constant', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -228,26 +324,40 @@ describe('POST Ethereum call function constant', () => {
 });
 
 describe('POST Ethereum call function no constant', () => {
-  it('should return the id of the transaction to call the no constant function', done => {
-    blockchainiz.callEthereumNoConstantFunc(
-      {
-        contractId: scId,
-        functionName: 'setStatus',
-        functionParameters: [10],
-        pushedCallback: 'http://test/pushedCallback',
-        minedCallback: 'http://test/minedCallback',
-      },
-      (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        functionId = res.id;
-        should.exist(res.id);
-        should.not.exist(err);
-        done();
-      },
-    );
-  });
+  it('should return the id of the transaction to call the no constant function', () => {
+    return postBin
+      .getUrl()
+      .then(data => {
+        blockchainiz.callEthereumNoConstantFunc(
+          {
+            contractId: scId,
+            functionName: 'setStatus',
+            functionParameters: [10],
+            pushedCallback: data.url + '?type=pushed',
+            minedCallback: data.url + '?type=mined',
+          },
+          (err, res) => {
+            if (err) {
+              console.log(err);
+            }
+            functionId = res.id;
+            should.exist(res.id);
+            should.not.exist(err);
+          },
+        );
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(functionId);
+        data.query.type.should.be.equal('pushed');
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(functionId);
+        data.query.type.should.be.equal('mined');
+        return postBin.deleteBin(data.binId);
+      });
+  }).timeout(120000);
 
   it('should return the id of the transaction to call the no constant function without callback', done => {
     blockchainiz.callEthereumNoConstantFunc(
@@ -280,7 +390,7 @@ describe('POST Ethereum call function no constant', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -294,11 +404,23 @@ describe('GET Ethereum no constant function', () => {
       if (err) {
         console.log(err);
       }
-      should.exist(res.id);
-      should.exist(res.status);
+      res.id.should.be.equal(functionId);
+      res.contract.should.be.equal(scId);
+      should.exist(res.txid);
+      res.functionName.should.be.equal('setStatus');
+      res.functionParameters.should.be.deepEqual([10]);
+      res.status.should.be.equal('mined');
       should.exist(res.pushedCallback);
       should.exist(res.minedCallback);
-      should.exist(res.timestampsInMs.requestAPI);
+      should.exist(res.blockHash);
+      should.exist(res.blockNumber);
+      should.exist(res.gasUsed);
+      should.exist(res.gasLimit);
+      should.exist(res.gasPriceInWei);
+      should.exist(res.timestampsInMs.apiRequest);
+      should.exist(res.timestampsInMs.pushedInBlockchain);
+      should.exist(res.timestampsInMs.minedInBlockchain);
+      should.exist(res.timestampsInMs.response);
       should.exist(res.etherPrice);
       should.not.exist(err);
       done();
@@ -310,7 +432,7 @@ describe('GET Ethereum no constant function', () => {
       if (res) {
         console.log(res);
       }
-      err.should.be.equal('invalid parameters');
+      err.message.should.be.equal('invalid parameters');
       should.not.exist(res);
       done();
     });
@@ -332,11 +454,10 @@ describe('GET Ethereum no constant function list', () => {
         res[0].should.be.an.instanceOf(Object);
         should.exist(res[0].id);
         should.exist(res[0].status);
-        should.exist(res[0].functionName);
-        should.exist(res[0].functionParameters);
-        should.exist(res[0].blockHash);
-        should.exist(res[0].gasUsed);
-        should.exist(res[0].timestampsInMs.requestAPI);
+        should.exist(res[0].timestampsInMs.response);
+        should.exist(res[0].timestampsInMs.minedInBlockchain);
+        should.exist(res[0].timestampsInMs.pushedInBlockchain);
+        should.exist(res[0].timestampsInMs.apiRequest);
         should.exist(res[0].etherPrice);
         should.not.exist(err);
         done();
@@ -354,7 +475,7 @@ describe('GET Ethereum no constant function list', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -363,24 +484,44 @@ describe('GET Ethereum no constant function list', () => {
 });
 
 describe('POST Ethereum subscribe event', () => {
-  it('should return the mongo object about the id given', done => {
-    blockchainiz.subscribeEthereumEvent(
-      {
-        eventName: 'statusChange',
-        callbackUrl: 'http://test/eventCallback',
-        contractId: scId,
-      },
-      (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        subscriptionId = res.id;
-        should.exist(res.id);
-        should.not.exist(err);
-        done();
-      },
-    );
-  });
+  it('should return the mongo object about the id given', () => {
+    return postBin
+      .getUrl()
+      .then(data => {
+        blockchainiz.subscribeEthereumEvent(
+          {
+            eventName: 'statusChange',
+            callbackUrl: data.url + '?type=event',
+            contractId: scId,
+          },
+          (err, res) => {
+            if (err) {
+              console.log(err);
+            }
+            subscriptionId = res.id;
+            should.exist(res.id);
+            should.not.exist(err);
+
+            // call function for triggers event, not need because after teste call the function
+            // blockchainiz.callEthereumNoConstantFunc(
+            //   {
+            //     contractId: scId,
+            //     functionName: 'setStatus',
+            //     functionParameters: [30],
+            //   },
+            //   () => {},
+            // );
+          },
+        );
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        should.exist(data.body.eventId);
+        eventId = data.body.eventId;
+        data.query.type.should.be.equal('event');
+        return postBin.deleteBin(data.binId);
+      });
+  }).timeout(120000);
 
   it('should return invalid parameters', done => {
     blockchainiz.subscribeEthereumEvent(
@@ -393,7 +534,7 @@ describe('POST Ethereum subscribe event', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -429,7 +570,7 @@ describe('DELETE Ethereum unsubscribe event', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -471,7 +612,7 @@ describe('GET Ethereum subscription', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -490,6 +631,7 @@ describe('GET Ethereum event by subscription', () => {
         if (err) {
           console.log(err);
         }
+        // TODO: test contente
         should.exist(res);
         res.should.be.an.Array();
         should.not.exist(err);
@@ -508,7 +650,7 @@ describe('GET Ethereum event by subscription', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -521,12 +663,22 @@ describe('GET Ethereum event', () => {
     blockchainiz.getEthereumEvent(
       {
         contractId: scId,
-        eventId: subscriptionId,
+        eventId,
       },
       (err, res) => {
         if (err) {
           console.log(err);
         }
+        res.id.should.be.equal(eventId);
+        should(res.parameters[0]['_adresse']).be.equal(
+          '0x8f136c013b1c541a7971c9dfbd0866c60f362f0a',
+        );
+        should(res.parameters[0]['_status']).be.equal('10');
+        res.contract.should.be.equal(scId);
+        res.id.should.be.equal(eventId);
+        should(res.blockNumber).is.a.number;
+        should.exist(res.blockHash);
+        should.exist(res.transactionHash);
         should.not.exist(err);
         done();
       },
@@ -543,7 +695,7 @@ describe('GET Ethereum event', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -621,7 +773,7 @@ describe('POST Ethereum rawTransaction', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },
@@ -648,7 +800,7 @@ describe('GET Ethereum rawTransaction', () => {
       if (res) {
         console.log(res);
       }
-      err.should.be.equal('invalid parameters');
+      err.message.should.be.equal('invalid parameters');
       should.not.exist(res);
       done();
     });
@@ -656,7 +808,7 @@ describe('GET Ethereum rawTransaction', () => {
 });
 
 describe('GET Ethereum raw transaction list', () => {
-  it('should return the mongo object about the id given', done => {
+  it('should return the raw transaction list', done => {
     blockchainiz.getEthereumRawTransactionList(
       {
         page: 1,
@@ -671,8 +823,7 @@ describe('GET Ethereum raw transaction list', () => {
         should.exist(res[0].id);
         should.exist(res[0].data);
         should.exist(res[0].status);
-        should.exist(res[0].timestampsInMs.requestAPI);
-        should.exist(res[0].timestampsInMs.pushedInBlockchain);
+        should.exist(res[0].timestampsInMs.apiRequest);
         should.exist(res[0].etherPrice);
         res[0].data.should.be.an.instanceOf(Object);
         should.not.exist(err);
@@ -691,7 +842,7 @@ describe('GET Ethereum raw transaction list', () => {
         if (res) {
           console.log(res);
         }
-        err.should.be.equal('invalid parameters');
+        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
         done();
       },

@@ -1,5 +1,8 @@
 
-[![Build Status](https://travis-ci.org/KevinBockelandt/lib-blockchainiz-node.svg?branch=master)](https://travis-ci.org/KevinBockelandt/lib-blockchainiz-node) [![Coverage Status](https://coveralls.io/repos/github/KevinBockelandt/lib-blockchainiz-node/badge.svg?branch=master)](https://coveralls.io/github/KevinBockelandt/lib-blockchainiz-node?branch=master)
+![Node Library for Catalizr API](./img/blockchainiz.png)
+BLOCKCHAINIZ LIBRARY
+=================================================
+ This is a PHP client library to work with [Blockchainiz API](https://doc.api.v2.blockchainiz.io/).
 
 ## Description
 
@@ -10,7 +13,7 @@ Blockchainiz is a platform to access the blockchain. It is dedicated to banks an
 Simply use NPM with the following command:
 
 ```
-npm install blockchainiz --save
+npm install blockchainiz2 --save
 ```
 
 This will download the package and add an entry in your project's `package.json` file.
@@ -20,7 +23,7 @@ This will download the package and add an entry in your project's `package.json`
 In your project's source code, you need to start by importing the blockchainiz package and specify the options you want to use:
 
 ```javascript
-const blockchainiz = require('blockchainiz')({
+const blockchainiz = require('blockchainiz2')({
   publicKey: 'your public key',
   privateKey: 'your private key',
   useSandbox: true,
