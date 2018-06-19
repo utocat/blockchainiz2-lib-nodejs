@@ -1,6 +1,6 @@
 {
   "name": "blockchainiz2",
-  "version": "2.0.0",
+    "version": "2.0.1",
   "description": "A node library to interact more easily with the Blockchainiz API",
   "main": "index.js",
   "scripts": {
@@ -33,13 +33,13 @@
     "istanbul": "^0.4.4",
     "mocha": "^4.0.1",
     "prettier": "^1.10.2",
-    "request": "^2.87.0",
+    "request": "^2.74.0",
     "should": "^10.0.0"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.11.0",
-    "nsp": "^3.2.1"
+    "nsp": "^3.1.0"
   }
 }

@@ -22,7 +22,7 @@ let eventId;
 
 describe('POST Ethereum wallets', () => {
   it('should return the wallet address', done => {
-    blockchainiz.postEthereumWallets({ default: false }, (err, res) => {
+    blockchainiz.postEthereumWallets({}, (err, res) => {
       if (err) {
         console.log(err);
       }
@@ -45,8 +45,8 @@ describe('POST Ethereum wallets', () => {
   });
 });
 describe('GET Wallet balance', () => {
-  it('should return 0 balance for the created wallet', done => {
-    blockchainiz.getEthereumWalletBalance({ walletAddress: newWallet, unit: 'wei' }, (err, res) => {
+  it('should return 0 balance for the created wallet default unit', done => {
+    blockchainiz.getEthereumWalletBalance({ walletAddress: newWallet }, (err, res) => {
       if (err) {
         console.log(err);
       }
@@ -54,6 +54,35 @@ describe('GET Wallet balance', () => {
       res.balance.should.be.equal('0');
       res.unit.should.be.equal('wei');
       res.address.should.be.equal(newWallet);
+      done();
+    });
+  });
+  it('should return 0 balance for the created wallet unit set to ether', done => {
+    blockchainiz.getEthereumWalletBalance(
+      { walletAddress: newWallet, unit: 'ether' },
+      (err, res) => {
+        if (err) {
+          console.log(err);
+        }
+        should.not.exist(err);
+        res.balance.should.be.equal('0');
+        res.unit.should.be.equal('ether');
+        res.address.should.be.equal(newWallet);
+        done();
+      },
+    );
+  });
+});
+describe('GET Ethereum infos', () => {
+  it('should return infos about the Ethereum', done => {
+    blockchainiz.getEthereumInfos((err, res) => {
+      if (err) {
+        console.log(err);
+      }
+      should.not.exist(err);
+      res.compilerVersion.solc.version.should.be.a.String();
+      res.etherPrice.should.be.an.Object();
+      res.timestamp.should.be.an.Number();
       done();
     });
   });
@@ -81,7 +110,7 @@ describe('POST Ethereum contracts', () => {
         blockchainiz.postEthereumContract(
           {
             language: 'solidity',
-            sourceCode: sourceCode,
+            sourceCode,
             parameters: [15],
             name: 'testSmartContract',
             pushedCallback: data.url + '?type=pushed',
@@ -89,11 +118,11 @@ describe('POST Ethereum contracts', () => {
           },
           (err, res) => {
             if (err) {
-              throw err;
+              console.log(err);
             }
+            should.not.exist(err);
             scId = res.id;
             should.exist(res.id);
-            should.not.exist(err);
           },
         );
         return postBin.waitRequest(data.binId);
@@ -193,7 +222,7 @@ describe('POST Ethereum contracts', () => {
 
 describe('GET Ethereum contracts', () => {
   it('should return the Contract with the txid given', done => {
-    blockchainiz.getContractsById({ contractId: scId }, (err, res) => {
+    blockchainiz.getEthereumContractsById({ contractId: scId }, (err, res) => {
       if (err) {
         console.log(err);
       }
@@ -217,7 +246,7 @@ describe('GET Ethereum contracts', () => {
   });
 
   it('should response invalid parameters', done => {
-    blockchainiz.getContractsById({ contractId: 2 }, (err, res) => {
+    blockchainiz.getEthereumContractsById({ contractId: 2 }, (err, res) => {
       if (res) {
         console.log(res);
       }
@@ -234,6 +263,8 @@ describe('GET Ethereum contracts list', () => {
       {
         page: 1,
         perPage: 20,
+        sortBy: 'status',
+        sortOrder: 'asc',
       },
       (err, res) => {
         if (err) {
@@ -257,7 +288,7 @@ describe('GET Ethereum contracts list', () => {
         if (res) {
           console.log(res);
         }
-        err.message.should.be.equal('invalid parameters');
+        err.message.should.be.equal('Error by blockchainiz: "page" must be a number');
         should.not.exist(res);
         done();
       },
@@ -267,11 +298,10 @@ describe('GET Ethereum contracts list', () => {
 
 describe('POST Ethereum call function constant', () => {
   it('should return the execution of the function', done => {
-    blockchainiz.callEthereumConstantFunc(
+    blockchainiz.callEthereumConstantFunction(
       {
         contractId: scId,
         functionName: 'getStatus',
-        functionParameters: [],
       },
       (err, res) => {
         if (err) {
@@ -285,7 +315,7 @@ describe('POST Ethereum call function constant', () => {
   });
 
   it('should return the execution of the function', done => {
-    blockchainiz.callEthereumConstantFunc(
+    blockchainiz.callEthereumConstantFunction(
       {
         contractId: scId,
         functionName: 'get',
@@ -305,7 +335,7 @@ describe('POST Ethereum call function constant', () => {
   });
 
   it('should response invalid parameters', done => {
-    blockchainiz.callEthereumConstantFunc(
+    blockchainiz.callEthereumConstantFunction(
       {
         contractId: 'toto',
         functionName: 1,
@@ -328,7 +358,7 @@ describe('POST Ethereum call function no constant', () => {
     return postBin
       .getUrl()
       .then(data => {
-        blockchainiz.callEthereumNoConstantFunc(
+        blockchainiz.callEthereumNoConstantFunction(
           {
             contractId: scId,
             functionName: 'setStatus',
@@ -360,7 +390,7 @@ describe('POST Ethereum call function no constant', () => {
   }).timeout(120000);
 
   it('should return the id of the transaction to call the no constant function without callback', done => {
-    blockchainiz.callEthereumNoConstantFunc(
+    blockchainiz.callEthereumNoConstantFunction(
       {
         contractId: scId,
         functionName: 'setStatus',
@@ -378,7 +408,7 @@ describe('POST Ethereum call function no constant', () => {
   });
 
   it('should response invalid parameters', done => {
-    blockchainiz.callEthereumNoConstantFunc(
+    blockchainiz.callEthereumNoConstantFunction(
       {
         contractId: 'toto',
         functionName: 1,
@@ -400,7 +430,7 @@ describe('POST Ethereum call function no constant', () => {
 
 describe('GET Ethereum no constant function', () => {
   it('should return the mongo object about the id given', done => {
-    blockchainiz.getNoConstantFuncById({ functionId }, (err, res) => {
+    blockchainiz.getEthereumNoConstantFunctionById({ functionId }, (err, res) => {
       if (err) {
         console.log(err);
       }
@@ -428,7 +458,7 @@ describe('GET Ethereum no constant function', () => {
   });
 
   it('should return invalid parameters', done => {
-    blockchainiz.getNoConstantFuncById({ functionId: 666 }, (err, res) => {
+    blockchainiz.callEthereumConstantFunction({ functionId: 666 }, (err, res) => {
       if (res) {
         console.log(res);
       }
@@ -441,7 +471,7 @@ describe('GET Ethereum no constant function', () => {
 
 describe('GET Ethereum no constant function list', () => {
   it('should return the mongo object about the id given', done => {
-    blockchainiz.getNoConstantFuncList(
+    blockchainiz.getEthereumNoConstantFunctionList(
       {
         page: 1,
         perPage: 3,
@@ -466,7 +496,7 @@ describe('GET Ethereum no constant function list', () => {
   });
 
   it('should return invalid parameters', done => {
-    blockchainiz.getNoConstantFuncList(
+    blockchainiz.getEthereumNoConstantFunctionList(
       {
         page: 'toto',
         perPage: 'titi',
@@ -475,7 +505,7 @@ describe('GET Ethereum no constant function list', () => {
         if (res) {
           console.log(res);
         }
-        err.message.should.be.equal('invalid parameters');
+        err.message.should.be.equal('Error by blockchainiz: "page" must be a number');
         should.not.exist(res);
         done();
       },
@@ -503,7 +533,7 @@ describe('POST Ethereum subscribe event', () => {
             should.not.exist(err);
 
             // call function for triggers event, not need because after teste call the function
-            // blockchainiz.callEthereumNoConstantFunc(
+            // blockchainiz.callEthereumNoConstantFunction(
             //   {
             //     contractId: scId,
             //     functionName: 'setStatus',
@@ -783,16 +813,19 @@ describe('POST Ethereum rawTransaction', () => {
 
 describe('GET Ethereum rawTransaction', () => {
   it('should return the mongo object about the id given', done => {
-    blockchainiz.getEthereumRawTransaction({ rawtransactionId: rawTransactionId }, (err, res) => {
-      if (err) {
-        console.log(err);
-      }
-      should.exist(res.id);
-      should.exist(res.data);
-      should.exist(res.status);
-      should.not.exist(err);
-      done();
-    });
+    blockchainiz.getEthereumRawTransaction(
+      { format: 'ascii', rawtransactionId: rawTransactionId },
+      (err, res) => {
+        if (err) {
+          console.log(err);
+        }
+        should.exist(res.id);
+        should.exist(res.data);
+        should.exist(res.status);
+        should.not.exist(err);
+        done();
+      },
+    );
   });
 
   it('should return invalid parameters', done => {
@@ -842,7 +875,7 @@ describe('GET Ethereum raw transaction list', () => {
         if (res) {
           console.log(res);
         }
-        err.message.should.be.equal('invalid parameters');
+        err.message.should.be.equal('Error by blockchainiz: "page" must be a number');
         should.not.exist(res);
         done();
       },

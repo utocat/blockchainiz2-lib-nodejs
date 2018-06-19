@@ -1,4 +1,5 @@
 const Helper = require('../helper');
+const url = require('url');
 
 // exports.getNodes = opt => (callback) => {
 //   // Do the request to blockchainiz via the helper function
@@ -59,19 +60,13 @@ exports.postBitcoinNotaries = opt => (functionParameters, callback) => {
 };
 
 exports.getBitcoinNotariesList = opt => (functionParameters, callback) => {
-  if (
-    typeof functionParameters.page !== 'number' ||
-    typeof functionParameters.perPage !== 'number'
-  ) {
-    callback(new Error('invalid parameters'), null);
-    return;
-  }
+  const params = new url.URLSearchParams(functionParameters);
 
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
     opt,
     {},
-    `bitcoin/notaries?page=${functionParameters.page}&perPage=${functionParameters.perPage}`,
+    `bitcoin/notaries?${params.toString()}`,
     'GET',
     (err, res, body) => {
       /* istanbul ignore if */
@@ -82,19 +77,22 @@ exports.getBitcoinNotariesList = opt => (functionParameters, callback) => {
 };
 
 exports.getBitcoinNotariesById = opt => (functionParameters, callback) => {
+  const params = new url.URLSearchParams();
+
   if (
-    typeof functionParameters.notariesId !== 'string' ||
-    typeof functionParameters.format !== 'string'
+    typeof functionParameters.notariesId !== 'string'
   ) {
     callback(new Error('invalid parameters'), null);
     return;
   }
-
+  if (functionParameters.format) {
+    params.set('format', functionParameters.format);
+  }
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
     opt,
     {},
-    `bitcoin/notaries/${functionParameters.notariesId}?format=${functionParameters.format}`,
+    `bitcoin/notaries/${functionParameters.notariesId}?${params.toString()}`,
     'GET',
     (err, res, body) => {
       /* istanbul ignore if */

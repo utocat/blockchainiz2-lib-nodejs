@@ -3,19 +3,19 @@ const ethereum = require('./source/blockchainiz/ethereum');
 
 module.exports = options =>
   ({
-    // ________________Bitcoin_______________ //
-
-    // /notaries POST
-    postBitcoinNotaries: bitcoin.postBitcoinNotaries(options),
-
-    // /notaries GET
-    getBitcoinNotariesList: bitcoin.getBitcoinNotariesList(options),
-
-    // /notaries/:id GET
-    getBitcoinNotariesById: bitcoin.getBitcoinNotariesById(options),
-
-    // /notaries/infos GET by Id
-    getBitcoinInfos: bitcoin.getBitcoinInfos(options),
+    // // ________________Bitcoin_______________ //
+    //
+    // // /notaries POST
+    // postBitcoinNotaries: bitcoin.postBitcoinNotaries(options),
+    //
+    // // /notaries GET
+    // getBitcoinNotariesList: bitcoin.getBitcoinNotariesList(options),
+    //
+    // // /notaries/:id GET
+    // getBitcoinNotariesById: bitcoin.getBitcoinNotariesById(options),
+    //
+    // // /notaries/infos GET by Id
+    // getBitcoinInfos: bitcoin.getBitcoinInfos(options),
 
     // ________________Ethereum_______________ //
 
@@ -32,19 +32,19 @@ module.exports = options =>
     getEthereumContractsList: ethereum.getContractsList(options),
 
     // /contracts/:id GET
-    getContractsById: ethereum.getContractsById(options),
+    getEthereumContractsById: ethereum.getContractsById(options),
 
     // /noconstantfunction/:id GET
-    getNoConstantFuncById: ethereum.getNoConstantFuncById(options),
+    getEthereumNoConstantFunctionById: ethereum.getNoConstantFuncById(options),
 
     // /noconstantfunction GET
-    getNoConstantFuncList: ethereum.getNoConstantFuncList(options),
+    getEthereumNoConstantFunctionList: ethereum.getNoConstantFuncList(options),
 
     // /contracts/:id/noconstant/:functionName POST
-    callEthereumNoConstantFunc: ethereum.callContractsNoConstantFunction(options),
+    callEthereumNoConstantFunction: ethereum.callContractsNoConstantFunction(options),
 
     // /contracts/:id/constant/:functionName POST
-    callEthereumConstantFunc: ethereum.callContractsConstantFunction(options),
+    callEthereumConstantFunction: ethereum.callContractsConstantFunction(options),
 
     // /contracts/:id/subscribe POST
     subscribeEthereumEvent: ethereum.subscribeEthereumEvent(options),

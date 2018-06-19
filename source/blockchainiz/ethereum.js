@@ -1,4 +1,5 @@
 const Helper = require('../helper');
+const url = require('url');
 
 exports.getNodes = opt => (callback) => {
   // Do the request to blockchainiz via the helper function
@@ -10,22 +11,14 @@ exports.getNodes = opt => (callback) => {
 };
 
 exports.getContractsList = opt => (functionParameters, callback) => {
-  if (
-    typeof functionParameters.page !== 'number' ||
-    typeof functionParameters.perPage !== 'number'
-  ) {
-    callback(new Error('invalid parameters'), null);
-    return;
-  }
-
+  const params = new url.URLSearchParams(functionParameters);
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
     opt,
     {},
-    `ethereum/contracts?page=${functionParameters.page}&perPage=${functionParameters.perPage}`,
+    `ethereum/contracts?${params.toString()}`,
     'GET',
     (err, res, body) => {
-      /* istanbul ignore if */
       if (err) callback(err, null);
       else callback(null, body);
     },
@@ -33,7 +26,6 @@ exports.getContractsList = opt => (functionParameters, callback) => {
 };
 
 exports.postContracts = opt => (functionParameters, callback) => {
-  // eslint-disable-line
   if (
     typeof functionParameters.language !== 'string' ||
     typeof functionParameters.sourceCode !== 'string'
@@ -60,17 +52,22 @@ exports.postContracts = opt => (functionParameters, callback) => {
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(opt, rawBody, 'ethereum/contracts', 'POST', (err, res, body) => {
     /* istanbul ignore if */
-    if (err) callback(err, null);
-    else callback(null, body);
+    if (err) {
+      callback(err, null);
+    } else {
+      // eslint-disable-next-line no-param-reassign
+      body.walletAddress = body.fromAddress;
+      // eslint-disable-next-line no-param-reassign
+      delete body.fromAddress;
+      callback(null, body);
+    }
   });
 };
 
 exports.callContractsNoConstantFunction = opt => (functionParameters, callback) => {
-  // eslint-disable-line
   if (
     typeof functionParameters.contractId !== 'string' ||
-    typeof functionParameters.functionName !== 'string' ||
-    !Array.isArray(functionParameters.functionParameters)
+    typeof functionParameters.functionName !== 'string'
   ) {
     callback(new Error('invalid parameters'), null);
     return;
@@ -107,19 +104,21 @@ exports.callContractsNoConstantFunction = opt => (functionParameters, callback) 
     'POST',
     (err, res, body) => {
       /* istanbul ignore if */
-      if (err) callback(err, null);
-      else callback(null, body);
+      if (err) {
+        callback(err, null);
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        body.walletAddress = body.fromAddress;
+        // eslint-disable-next-line no-param-reassign
+        delete body.fromAddress;
+        callback(null, body);
+      }
     },
   );
 };
 
 exports.callContractsConstantFunction = opt => (parameters, callback) => {
-  // eslint-disable-line
-  if (
-    typeof parameters.contractId !== 'string' ||
-    typeof parameters.functionName !== 'string' ||
-    !Array.isArray(parameters.functionParameters)
-  ) {
+  if (typeof parameters.contractId !== 'string' || typeof parameters.functionName !== 'string') {
     callback(new Error('invalid parameters'), null);
     return;
   }
@@ -178,21 +177,13 @@ exports.getNoConstantFuncById = opt => (functionParameters, callback) => {
 };
 
 exports.getNoConstantFuncList = opt => (functionParameters, callback) => {
-  if (
-    typeof functionParameters.page !== 'number' ||
-    typeof functionParameters.perPage !== 'number'
-  ) {
-    callback(new Error('invalid parameters'), null);
-    return;
-  }
+  const params = new url.URLSearchParams(functionParameters);
 
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
     opt,
     {},
-    `ethereum/noconstantfunction?page=${functionParameters.page}&perPage=${
-      functionParameters.perPage
-    }`,
+    `ethereum/noconstantfunction?${params.toString()}`,
     'GET',
     (err, res, body) => {
       /* istanbul ignore if */
@@ -328,10 +319,7 @@ exports.getEthereumEvent = opt => (functionParameters, callback) => {
 };
 
 exports.postEthereumRawTransaction = opt => (functionParameters, callback) => {
-  if (
-    typeof functionParameters.format !== 'string' ||
-    typeof functionParameters.rawtransaction !== 'string'
-  ) {
+  if (typeof functionParameters.rawtransaction !== 'string') {
     callback(new Error('invalid parameters'), null);
     return;
   }
@@ -371,12 +359,16 @@ exports.getEthereumRawTransaction = opt => (functionParameters, callback) => {
     callback(new Error('invalid parameters'), null);
     return;
   }
+  const params = new url.URLSearchParams();
 
+  if (functionParameters.format) {
+    params.set('format', functionParameters.format);
+  }
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
     opt,
     {},
-    `ethereum/rawtransactions/${functionParameters.rawtransactionId}`,
+    `ethereum/rawtransactions/${functionParameters.rawtransactionId}?${params.toString()}`,
     'GET',
     (err, res, body) => {
       /* istanbul ignore if */
@@ -387,21 +379,13 @@ exports.getEthereumRawTransaction = opt => (functionParameters, callback) => {
 };
 
 exports.getEthereumRawTransactionList = opt => (functionParameters, callback) => {
-  if (
-    typeof functionParameters.page !== 'number' ||
-    typeof functionParameters.perPage !== 'number'
-  ) {
-    callback(new Error('invalid parameters'), null);
-    return;
-  }
+  const params = new url.URLSearchParams(functionParameters);
 
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
     opt,
     {},
-    `ethereum/rawtransactions?page=${functionParameters.page}&perPage=${
-      functionParameters.perPage
-    }`,
+    `ethereum/rawtransactions?${params.toString()}`,
     'GET',
     (err, res, body) => {
       /* istanbul ignore if */
@@ -430,19 +414,21 @@ exports.getWalletsList = opt => (callback) => {
 };
 
 exports.getWalletBalance = opt => (functionParameters, callback) => {
-  if (
-    typeof functionParameters.walletAddress !== 'string' ||
-    typeof functionParameters.unit !== 'string'
-  ) {
+  const params = new url.URLSearchParams();
+
+  if (typeof functionParameters.walletAddress !== 'string') {
     callback(new Error('invalid parameters'), null);
     return;
   }
 
+  if (functionParameters.unit) {
+    params.set('unit', functionParameters.unit);
+  }
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
     opt,
     {},
-    `ethereum/wallets/${functionParameters.walletAddress}/balance?unit=${functionParameters.unit}`,
+    `ethereum/wallets/${functionParameters.walletAddress}/balance?${params.toString()}`,
     'GET',
     (err, res, body) => {
       /* istanbul ignore if */
@@ -453,12 +439,6 @@ exports.getWalletBalance = opt => (functionParameters, callback) => {
 };
 
 exports.postWallets = opt => (functionParameters, callback) => {
-  // eslint-disable-line
-  if (typeof functionParameters.default !== 'boolean') {
-    callback(new Error('invalid parameters'), null);
-    return;
-  }
-
   const rawBody = {
     default: functionParameters.default,
   };
