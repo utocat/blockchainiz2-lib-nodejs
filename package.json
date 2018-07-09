@@ -1,14 +1,13 @@
 {
   "name": "blockchainiz2",
-    "version": "2.0.1",
+    "version": "2.0.2",
   "description": "A node library to interact more easily with the Blockchainiz API",
   "main": "index.js",
   "scripts": {
     "lint": "prettier --write \"source/**/*.js\" \"test/**/*.js\" && eslint --fix --ext .js --cache source/ test/",
     "pretest": "npm run lint",
-    "test": "mocha --reporter spec --timeout 20000",
-    "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*",
-    "security-check": "nsp check -o summary"
+    "test": "nyc mocha --reporter spec --timeout 20000",
+    "security-check": "npm audit"
   },
   "repository": {
     "type": "git",
@@ -28,18 +27,18 @@
   },
   "homepage": "https://github.com/utocat/blockchainiz2-lib-nodejs#readme",
   "dependencies": {
-    "coveralls": "^2.11.12",
+    "async": "^2.6.1",
+    "coveralls": "^3.0.2",
     "dotenv": "^2.0.0",
-    "istanbul": "^0.4.4",
-    "mocha": "^4.0.1",
+    "nyc": "^12.0.2",
     "prettier": "^1.10.2",
-    "request": "^2.74.0",
-    "should": "^10.0.0"
+    "request": "^2.87.0"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.11.0",
-    "nsp": "^3.1.0"
+    "mocha": "^4.1.0",
+    "should": "^10.0.0"
   }
 }

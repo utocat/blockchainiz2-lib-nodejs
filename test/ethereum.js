@@ -572,6 +572,47 @@ describe('POST Ethereum subscribe event', () => {
   });
 });
 
+describe('GET Ethereum subscription', () => {
+  it('should return the mongo object about the id given', done => {
+    blockchainiz.getEthereumSubscribtion(
+      {
+        contractId: scId,
+        subscriptionId: subscriptionId,
+      },
+      (err, res) => {
+        if (err) {
+          console.log(err);
+        }
+        should.not.exist(err);
+
+        should.exist(res.id);
+        res.contract.should.be.equal(scId);
+        should.exist(res.contract);
+        res.eventName.should.be.equal('statusChange');
+        should.exist(res.eventName);
+        should.exist(res.callback);
+        done();
+      },
+    );
+  });
+
+  it('should return invalid parameters', done => {
+    blockchainiz.getEthereumSubscribtion(
+      {
+        contractId: undefined,
+        subscriptionId: null,
+      },
+      (err, res) => {
+        if (res) {
+          console.log(res);
+        }
+        err.message.should.be.equal('invalid parameters');
+        should.not.exist(res);
+        done();
+      },
+    );
+  });
+});
 describe('DELETE Ethereum unsubscribe event', () => {
   it('should return the mongo object about the id given', done => {
     blockchainiz.unsubscribeEthereumEvent(
@@ -608,7 +649,7 @@ describe('DELETE Ethereum unsubscribe event', () => {
   });
 });
 
-describe('GET Ethereum subscription', () => {
+describe('GET Ethereum subscription no found', () => {
   it('should return the mongo object about the id given', done => {
     blockchainiz.getEthereumSubscribtion(
       {
@@ -616,34 +657,13 @@ describe('GET Ethereum subscription', () => {
         subscriptionId: subscriptionId,
       },
       (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        should.exist(res.id);
-        res.contract.should.be.equal(scId);
-        should.exist(res.contract);
-        res.eventName.should.be.equal('statusChange');
-        should.exist(res.eventName);
-        should.exist(res.enabled);
-        should.exist(res.callback);
-        should.not.exist(err);
-        done();
-      },
-    );
-  });
-
-  it('should return invalid parameters', done => {
-    blockchainiz.getEthereumSubscribtion(
-      {
-        contractId: undefined,
-        subscriptionId: null,
-      },
-      (err, res) => {
         if (res) {
           console.log(res);
         }
-        err.message.should.be.equal('invalid parameters');
         should.not.exist(res);
+        err.message.should.be.equal(
+          `Error by blockchainiz: Subscription with id ${subscriptionId} not found`,
+        );
         done();
       },
     );
@@ -699,17 +719,15 @@ describe('GET Ethereum event', () => {
         if (err) {
           console.log(err);
         }
+        should.not.exist(err);
         res.id.should.be.equal(eventId);
-        should(res.parameters[0]['_adresse']).be.equal(
-          '0x8f136c013b1c541a7971c9dfbd0866c60f362f0a',
-        );
-        should(res.parameters[0]['_status']).be.equal('10');
+        should(res.parameters['_adresse']).be.equal('0x8f136c013b1c541a7971c9dfbd0866c60f362f0a');
+        should(res.parameters['_status']).be.equal('10');
         res.contract.should.be.equal(scId);
         res.id.should.be.equal(eventId);
         should(res.blockNumber).is.a.number;
         should.exist(res.blockHash);
         should.exist(res.transactionHash);
-        should.not.exist(err);
         done();
       },
     );

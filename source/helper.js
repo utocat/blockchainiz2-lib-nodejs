@@ -1,4 +1,5 @@
 const request = require('request');
+const { queue } = require('async');
 
 const config = require('./config');
 
@@ -17,68 +18,85 @@ class Helper {
    */
 
   static requestBlockchainiz(opt, rawBody, path, method, callback, retry = true) {
-    // Get jwt Token to perform blockchainiz request
-    const jwtTokenP = Jwt.getJWT(opt);
-
-    // a number that will always be higher than the last one when calling the blockchainiz API
-
-    jwtTokenP
-      .then((jwtToken) => {
-        const nonce = Date.now();
-        const message = `${nonce}${config.getApiUrl(opt.useSandbox)}${path}${JSON.stringify(
-          rawBody,
-        )}`;
-        const hmac = Hmac.generate(opt.privateKey, message);
-
-        // make the request to blockchainiz
-        request(
-          {
-            url: config.getApiUrl(opt.useSandbox) + path,
-            headers: {
-              'x-Api-Key': opt.publicKey,
-              'x-Api-Signature': hmac,
-              'x-Api-Nonce': nonce,
-              Authorization: `bearer ${jwtToken}`,
-            },
-            method,
-            json: true,
-            body: rawBody,
-          },
-          (err, res, body) => {
-            if (!err && res && res.statusCode > 399) {
-              // if blockchainiz return an internal error catch and return then to the user
-              if (body.message) {
-                if (
-                  (body.message === 'invalid token' ||
-                    body.message === 'no token' ||
-                    body.message === 'application linked with jwt not found in db') &&
-                  retry
-                ) {
-                  // if we are there its because the jwt is invalid
-                  // then generate new jwt automatically
-                  Jwt.generateJWT(opt)
-                    .then(() => {
-                      Helper.requestBlockchainiz(opt, rawBody, path, method, callback, false);
-                    })
-                    .catch(callback);
-                  return;
-                }
-                const errBlockchainiz = new Error(`Error by blockchainiz: ${body.message}`);
-                errBlockchainiz.code = res.statusCode;
-                callback(errBlockchainiz, res, body);
-              } else {
-                const errBlockchainiz = new Error('Error by blockchainiz: unknown');
-                errBlockchainiz.code = res.statusCode;
-                callback(errBlockchainiz, res, body);
-              }
-            } else {
-              callback(err, res, body);
-            }
-          },
-        );
-      })
-      .catch(callback);
+    const task = {
+      opt,
+      rawBody,
+      path,
+      method,
+      retry,
+      callback,
+    };
+    Helper.queue.push(task);
+    // console.log(Helper.queue.length());
   }
 }
 
+Helper.queue = queue((task, callback) => {
+  Jwt.getJWT(task.opt)
+    .then((jwtToken) => {
+      const nonce = Date.now();
+      const message = `${nonce}${config.getApiUrl(task.opt.useSandbox)}${task.path}${JSON.stringify(task.rawBody)}`;
+      const hmac = Hmac.generate(task.opt.privateKey, message);
+
+      // make the request to blockchainiz
+      request(
+        {
+          url: config.getApiUrl(task.opt.useSandbox) + task.path,
+          headers: {
+            'x-Api-Key': task.opt.publicKey,
+            'x-Api-Signature': hmac,
+            'x-Api-Nonce': nonce,
+            Authorization: `bearer ${jwtToken}`,
+          },
+          method: task.method,
+          json: true,
+          body: task.rawBody,
+        },
+        (err, res, body) => {
+          if (!err && res && res.statusCode > 399) {
+            // if blockchainiz return an internal error catch and return then to the user
+            if (body.message) {
+              if (
+                (body.message === 'invalid token' ||
+                  body.message === 'no token' ||
+                  body.message === 'application linked with jwt not found in db') &&
+                  task.retry
+              ) {
+                // if we are there its because the jwt is invalid
+                // then generate new jwt automatically
+                Jwt.generateJWT(task.opt)
+                  .then(() => {
+                    // eslint-disable-next-line no-param-reassign
+                    task.retry = false;
+                    Helper.queue.push(task);
+                    callback();
+                  })
+                  .catch((err3) => {
+                    task.callback(err3);
+                    callback();
+                  });
+                return;
+              }
+              const errBlockchainiz = new Error(`Error by blockchainiz: ${body.message}`);
+              errBlockchainiz.code = res.statusCode;
+              task.callback(errBlockchainiz, res, body);
+              callback();
+            } else {
+              const errBlockchainiz = new Error('Error by blockchainiz: unknown');
+              errBlockchainiz.code = res.statusCode;
+              task.callback(errBlockchainiz, res, body);
+              callback();
+            }
+          } else {
+            task.callback(err, res, body);
+            callback();
+          }
+        },
+      );
+    })
+    .catch((err2) => {
+      task.callback(err2);
+      callback();
+    });
+});
 module.exports = Helper;
