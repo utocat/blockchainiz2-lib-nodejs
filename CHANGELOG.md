@@ -1,4 +1,6 @@
-## 2.0.2 (2018-07-09)
+## 2.1.0 (2018-07-13)
+
+* Setting up retry when invalid nonce
 
 ### Fixed (1 change)
 * Fix test for last api
@@ -10,6 +12,7 @@
 
 ### Added (1 change)
 * changelog of the nodeJs SDK
+
 
 
 
