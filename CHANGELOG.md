@@ -1,3 +1,7 @@
+## 2.1.1 (2018-07-13)
+
+* remove log console
+
 ## 2.1.0 (2018-07-13)
 
 * Setting up retry when invalid nonce
@@ -12,6 +16,7 @@
 
 ### Added (1 change)
 * changelog of the nodeJs SDK
+
 
 
 

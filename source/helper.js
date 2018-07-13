@@ -34,8 +34,6 @@ class Helper {
 Helper.queue = queue((task, callback) => {
   // eslint-disable-next-line no-param-reassign
   task.retry += 1;
-  console.log(task.retry);
-
   Jwt.getJWT(task.opt)
     .then((jwtToken) => {
       const nonce = Date.now();
@@ -61,7 +59,6 @@ Helper.queue = queue((task, callback) => {
             // if blockchainiz return an internal error catch and return then to the user
             if (task.retry <= 3) {
               if (body && body.message) {
-                console.log(body.message);
                 if (
                   body.message === 'invalid token' ||
                     body.message === 'no token' ||
