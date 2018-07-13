@@ -1,6 +1,6 @@
 {
   "name": "blockchainiz2",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "A node library to interact more easily with the Blockchainiz API",
   "main": "index.js",
   "scripts": {
