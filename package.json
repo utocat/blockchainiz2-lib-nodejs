@@ -1,13 +1,18 @@
 {
   "name": "blockchainiz2",
-    "version": "2.1.1",
+  "version": "2.1.2",
   "description": "A node library to interact more easily with the Blockchainiz API",
   "main": "index.js",
   "scripts": {
     "lint": "prettier --write \"source/**/*.js\" \"test/**/*.js\" && eslint --fix --ext .js --cache source/ test/",
     "pretest": "npm run lint",
     "test": "nyc mocha --reporter spec --timeout 20000",
-    "security-check": "npm audit"
+    "security-check": "npm audit",
+    "config-deploy": "deploy config",
+    "merge": "deploy merge",
+    "recette": "deploy recette",
+    "pre-prod": "deploy preprod",
+    "prod": "deploy prod"
   },
   "repository": {
     "type": "git",
@@ -35,6 +40,7 @@
     "request": "^2.87.0"
   },
   "devDependencies": {
+    "@utocat/deploy-tools": "^1.4.5",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.11.0",

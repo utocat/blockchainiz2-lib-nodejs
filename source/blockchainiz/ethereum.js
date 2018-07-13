@@ -245,7 +245,7 @@ exports.unsubscribeEthereumEvent = opt => (functionParameters, callback) => {
   );
 };
 
-exports.getEthereumSubscribtion = opt => (functionParameters, callback) => {
+exports.getEthereumSubscription = opt => (functionParameters, callback) => {
   if (
     typeof functionParameters.contractId !== 'string' ||
     typeof functionParameters.subscriptionId !== 'string'

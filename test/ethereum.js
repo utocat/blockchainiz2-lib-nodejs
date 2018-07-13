@@ -574,7 +574,7 @@ describe('POST Ethereum subscribe event', () => {
 
 describe('GET Ethereum subscription', () => {
   it('should return the mongo object about the id given', done => {
-    blockchainiz.getEthereumSubscribtion(
+    blockchainiz.getEthereumSubscription(
       {
         contractId: scId,
         subscriptionId: subscriptionId,
@@ -597,7 +597,7 @@ describe('GET Ethereum subscription', () => {
   });
 
   it('should return invalid parameters', done => {
-    blockchainiz.getEthereumSubscribtion(
+    blockchainiz.getEthereumSubscription(
       {
         contractId: undefined,
         subscriptionId: null,
@@ -651,7 +651,7 @@ describe('DELETE Ethereum unsubscribe event', () => {
 
 describe('GET Ethereum subscription no found', () => {
   it('should return the mongo object about the id given', done => {
-    blockchainiz.getEthereumSubscribtion(
+    blockchainiz.getEthereumSubscription(
       {
         contractId: scId,
         subscriptionId: subscriptionId,

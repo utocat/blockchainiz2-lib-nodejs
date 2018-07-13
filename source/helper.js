@@ -57,30 +57,38 @@ Helper.queue = queue((task, callback) => {
         (err, res, body) => {
           if (!err && res && res.statusCode > 399) {
             // if blockchainiz return an internal error catch and return then to the user
-            if (task.retry <= 3) {
-              if (body && body.message) {
-                if (
-                  body.message === 'invalid token' ||
-                    body.message === 'no token' ||
-                    body.message === 'application linked with jwt not found in db'
-                ) {
-                  // if we are there its because the jwt is invalid
-                  // then generate new jwt automatically
-                  Jwt.generateJWT(task.opt)
-                    .then(() => {
-                      Helper.queue.push(task);
-                      callback();
-                    })
-                    .catch((err3) => {
-                      task.callback(err3);
-                      callback();
-                    });
-                } else if (body.message === 'invalid nonce') {
-                  callback();
-                  setTimeout(() => {
+            if (task.retry <= 3 && body && body.message) {
+              if (
+                body.message === 'invalid token' ||
+                body.message === 'no token' ||
+                body.message === 'application linked with jwt not found in db'
+              ) {
+                // if we are there its because the jwt is invalid
+                // then generate new jwt automatically
+                Jwt.generateJWT(task.opt)
+                  .then(() => {
                     Helper.queue.push(task);
-                  }, 5000);
+                    callback();
+                  })
+                  .catch((err3) => {
+                    task.callback(err3);
+                    callback();
+                  });
+              } else if (body.message === 'invalid nonce') {
+                callback();
+                setTimeout(() => {
+                  Helper.queue.push(task);
+                }, 5000);
+              } else {
+                let errBlockchainiz;
+                if (body && body.message) {
+                  errBlockchainiz = new Error(`Error by blockchainiz: ${body.message}`);
+                } else {
+                  errBlockchainiz = new Error('Error unknown by blockchainiz');
                 }
+                errBlockchainiz.code = res.statusCode;
+                task.callback(errBlockchainiz, res, body);
+                callback();
               }
             } else {
               let errBlockchainiz;

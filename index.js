@@ -53,7 +53,7 @@ module.exports = options =>
     unsubscribeEthereumEvent: ethereum.unsubscribeEthereumEvent(options),
 
     // /contracts/:contractId/subscribe/:id GET
-    getEthereumSubscribtion: ethereum.getEthereumSubscribtion(options),
+    getEthereumSubscription: ethereum.getEthereumSubscription(options),
 
     // /contracts/:contractId/subscribe/:id/events GET
     getEthereumEventsBySubscription: ethereum.getEthereumEventsBySubscription(options),
