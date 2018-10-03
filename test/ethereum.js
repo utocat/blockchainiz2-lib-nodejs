@@ -39,8 +39,12 @@ describe('POST Ethereum wallets', () => {
         console.log(err);
       }
       should.not.exist(err);
-      res.addresses.should.containEql(newWallet);
-      done();
+      const findResult = res.addresses.find(wallet => {
+        return wallet.address === newWallet;
+      });
+      if (findResult) {
+        done();
+      }
     });
   });
 });
@@ -898,5 +902,29 @@ describe('GET Ethereum raw transaction list', () => {
         done();
       },
     );
+  });
+});
+describe('PATCH Ethereum wallets', () => {
+  it('should update wallet gasPrice', done => {
+    console.log(newWallet);
+    blockchainiz.patchEthereumWallet({ walletAddress: newWallet, gasPrice: 'fast' }, (err, res) => {
+      if (err) {
+        console.log(err);
+      }
+      should.not.exist(err);
+      blockchainiz.getEthereumWalletsList((err2, res2) => {
+        if (err2) {
+          console.log(err2);
+        }
+        should.not.exist(err2);
+        const wallet = res2.addresses.find(wallet => {
+          return wallet.address === newWallet;
+        });
+        if (wallet) {
+          wallet.gasPrice.should.be.equal('fast');
+          done();
+        }
+      });
+    });
   });
 });

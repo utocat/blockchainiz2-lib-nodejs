@@ -1,3 +1,13 @@
+## 2.2.0 (2018-10-03)
+
+### Fixed (2 changes)
+* Rename function getEthereumSubscribtion to getEthereumSubscription !57
+* Fix blockchainiz error return !56
+
+### Changed (2 changes)
+* Update parameters for post contract and call no constant function !66
+* Add errorCallback to no constant function !68
+
 ## 2.1.1 (2018-07-13)
 
 * remove log console

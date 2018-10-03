@@ -33,20 +33,16 @@ exports.postContracts = opt => (functionParameters, callback) => {
     callback(new Error('invalid parameters'), null);
     return;
   }
-  let address;
-
-  if (functionParameters.walletAddress) {
-    address = functionParameters.walletAddress;
-  }
 
   const rawBody = {
     language: functionParameters.language,
     sourceCode: functionParameters.sourceCode,
     parameters: functionParameters.parameters,
     name: functionParameters.name,
-    address,
+    address: functionParameters.walletAddress,
     pushedCallback: functionParameters.pushedCallback,
     minedCallback: functionParameters.minedCallback,
+    gasPrice: functionParameters.gasPrice,
   };
 
   // Do the request to blockchainiz via the helper function
@@ -72,27 +68,14 @@ exports.callContractsNoConstantFunction = opt => (functionParameters, callback) 
     callback(new Error('invalid parameters'), null);
     return;
   }
-  let minedCallback;
-  let pushedCallback;
-  let address;
-
-  if (functionParameters.pushedCallback) {
-    ({ pushedCallback } = functionParameters);
-  }
-
-  if (functionParameters.minedCallback) {
-    ({ minedCallback } = functionParameters);
-  }
-
-  if (functionParameters.walletAddress) {
-    address = functionParameters.walletAddress;
-  }
 
   const rawBody = {
     functionParameters: functionParameters.functionParameters,
-    address,
-    pushedCallback,
-    minedCallback,
+    address: functionParameters.walletAddress,
+    pushedCallback: functionParameters.pushedCallback,
+    minedCallback: functionParameters.minedCallback,
+    errorCallback: functionParameters.errorCallback,
+    gasPrice: functionParameters.gasPrice,
   };
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
@@ -406,7 +389,7 @@ exports.getInfos = opt => (callback) => {
 
 exports.getWalletsList = opt => (callback) => {
   // Do the request to blockchainiz via the helper function
-  Helper.requestBlockchainiz(opt, {}, 'ethereum/wallets', 'GET', (err, res, body) => {
+  Helper.requestBlockchainiz(opt, {}, 'ethereum/wallets/', 'GET', (err, res, body) => {
     /* istanbul ignore if */
     if (err) callback(err, null);
     else callback(null, body);
@@ -441,6 +424,7 @@ exports.getWalletBalance = opt => (functionParameters, callback) => {
 exports.postWallets = opt => (functionParameters, callback) => {
   const rawBody = {
     default: functionParameters.default,
+    gasPrice: functionParameters.gasPrice,
   };
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(opt, rawBody, 'ethereum/wallets', 'POST', (err, res, body) => {
@@ -448,4 +432,23 @@ exports.postWallets = opt => (functionParameters, callback) => {
     if (err) callback(err, null);
     else callback(null, body);
   });
+};
+
+exports.patchWallet = opt => (functionParameters, callback) => {
+  const rawBody = {
+    default: functionParameters.default,
+    gasPrice: functionParameters.gasPrice,
+  };
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(
+    opt,
+    rawBody,
+    `ethereum/wallets/${functionParameters.walletAddress}`,
+    'PATCH',
+    (err, res, body) => {
+      /* istanbul ignore if */
+      if (err) callback(err, null);
+      else callback(null, body);
+    },
+  );
 };

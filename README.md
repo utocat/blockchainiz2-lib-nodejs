@@ -69,6 +69,7 @@ blockchainiz.getEthereumInfos((err, res) => {
 		EUR: 423.83,
 		USD: 492.63
 	},
+	gasPrice: { fast: 12000000000, slow: 5000000000, standard: 6000000000 },
 	timestamp: 1529323176534
 }
 ```
@@ -81,6 +82,7 @@ blockchainiz.postEthereumContract(
 	sourceCode: sourceCode, // REQUIRED: string: sourcecode of your Ethereum contract
 	walletAddress : '0x1234567890abcdef' // string: if null = default wallet
 	parameters: [15], // number: parameters for your constructor
+	gasPrice: 11000000000, // number (gas price in wei), string ("slow", "standard", "fast"): gas price used for this transaction
 	name: 'testSmartContract', // string: Name of your Ethereum contract
 	pushedCallback: data.url + '?type=pushed', // string: url called after push
 	minedCallback: data.url + '?type=mined', // string: url called after mining
@@ -94,7 +96,7 @@ blockchainiz.postEthereumContract(
 ```javascript
 {
 	id: '5b27a100b989df001152e02e',
-	walletAddress: '0xabcdef1234567890'
+	walletAddress: '0x8f136c013b1c541a7971c9dfbd0866c60f362f0c'
 }
 ```
 
@@ -162,7 +164,7 @@ blockchainiz.getEthereumContractsList(
 ```javascript
 blockchainiz.getEthereumContractsById(
 {
-	contractId: ‘5afaf0e64456d800113c94df’ // REQUIRED: string: the contract ID
+	contractId: '5afaf0e64456d800113c94df' // REQUIRED: string: the contract ID
 });
 ```
 #### Response
@@ -244,6 +246,7 @@ blockchainiz.getEthereumNoConstantFunctionById(
 	status: 'mined',
 	pushedCallback: 'http://postb.in/DgmNHcCg?type=pushed',
 	minedCallback: 'http://postb.in/DgmNHcCg?type=mined',
+	errorCallback: 'http://postb.in/DgmNHcCg?type=error',
 	blockHash: '0xb851637721fd2edb3d6a4ef3dd5434adaf94c60199b9ad8607d59ffcb3abfbe1',
 	blockNumber: 3462888,
 	gasUsed: 28378,
@@ -295,6 +298,7 @@ blockchainiz.getEthereumNoConstantFunctionList(
 		status: 'mined',  
 		pushedCallback: 'http://test/pushedCallback',  
 		minedCallback: 'http://test/minedCallback',  
+		errorCallback: 'http://test/errorCallback',
 		blockHash: '0x2f3cd5ec71596f8b6896a6b0f5e9a2272042ce4d61a791ab1cbd364edd9caa',  
 		blockNumber: 3392382,  
 		gasUsed: 43378,  
@@ -329,6 +333,7 @@ blockchainiz.callEthereumNoConstantFunction(
 	functionParameters: [ // if null = []
 		10
 	],
+	gasPrice: 11000000000, // number (gas price in wei), string ("slow", "standard", "fast"): gas price used for this transaction
 	walletAddress: // if null = default wallet
 	pushedCallback: // string/url
 	minedCallback: // string/url
@@ -496,7 +501,8 @@ blockchainiz.getEthereumEvent(
 ```javascript
 blockchainiz.postEthereumWallets(
 {
-	default: true // if true = the wallet created will be as default
+	default: true, // if true = the wallet created will be as default
+	gasPrice: 11000000000 // number (gas price in wei) or string ("slow", "standard", "fast") or null (will use default gas price from your user): gas price used for this wallet
 }, (err, res) => {
 	if (err) {
 		console.log(err);
@@ -510,12 +516,48 @@ blockchainiz.postEthereumWallets(
 }
 ```
 
+### Update an Ethereum wallet
+```javascript
+blockchainiz.patchEthereumWallets(
+{
+	default: true, // if true = the wallet created will be as default
+	gasPrice: 11000000000, // number (gas price in wei) or string ("slow", "standard", "fast") or null (will use default gas price from your user): gas price used for this wallet
+}, (err, res) => {
+	if (err) {
+		console.log(err);
+	}
+});
+```
+#### Response
+```javascript
+{
+}
+```
+
+### Update user
+```javascript
+blockchainiz.patchUser(
+{
+	gasPrice: 11000000000, // number (gas price in wei) or string ("slow", "standard", "fast"): gas price used for your transactions if not defined in your wallet 
+}, (err, res) => {
+	if (err) {
+		console.log(err);
+	}
+});
+```
+#### Response
+```javascript
+{
+}
+```
+
+
 ### Get the balance of a specific wallet address
 ```javascript
 blockchainiz.getEthereumWalletBalance(
 {
 	walletAddress: '0x271c4832fa1c0dc541a910afa47facb484dc8bce', // the wallet address
-	unit: // default = wei - possible ('Gwei','Kwei','Mwei','babbage','ether','femtoether','finney','gether','grand','gwei','kether','kwei','lovelace','mether','micro','microether','milli','milliether','mwei','nano','nanoether','noether','picoether','shannon','szabo','tether','wei')
+	unit: 'wei'// default = wei - possible ('Gwei','Kwei','Mwei','babbage','ether','femtoether','finney','gether','grand','gwei','kether','kwei','lovelace','mether','micro','microether','milli','milliether','mwei','nano','nanoether','noether','picoether','shannon','szabo','tether','wei')
 }, (err, res) => {
 	if (err) {
 		console.log(err);
@@ -543,12 +585,15 @@ blockchainiz.getEthereumWalletsList(
 #### Response
 ```javascript
 {
-	addresses:[
-		'0x8f136c013b1c541a7971c9dfbd0866c60f362f0a',
-		'0x2bc2239448959a1ae54747c28827b2ad7d20006c',
-		'0x60a30530ec6b7b2ef782d48863f3b6f2146075cb',
-		...
-	],
+	addresses:
+    [ { address: '0x8f136c013b1c541a7971c9dfbd0866c60f362f0a',
+       gasPrice: 'standard' },
+     { address: '0x2bc2239448959a1ae54747c28827b2ad7d20006c' },
+     { address: '0x60a30530ec6b7b2ef782d48863f3b6f2146075cb' },
+     { address: '0x7a2cc501c800edb961cced0cae4b073b0b320ab3' },
+     { address: '0xb9cffdf7058662d547816cec29e235702aa7c965' },
+	 { address: '0x465b14a5cd0cab3263ca42b3f4881f1501b24ba4' }
+	]
 	defaultAddress: '0x2bc2239448959a1ae54747c28827b2ad7d20006c'
 }
 ```

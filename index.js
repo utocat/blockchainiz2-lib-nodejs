@@ -1,5 +1,6 @@
 const bitcoin = require('./source/blockchainiz/bitcoin');
 const ethereum = require('./source/blockchainiz/ethereum');
+const user = require('./source/blockchainiz/user');
 
 module.exports = options =>
   ({
@@ -73,9 +74,18 @@ module.exports = options =>
     // /wallets POST
     postEthereumWallets: ethereum.postWallets(options),
 
+    // /wallets PATCH
+    patchEthereumWallet: ethereum.patchWallet(options),
+
     // /wallets/:id/balance GET
     getEthereumWalletBalance: ethereum.getWalletBalance(options),
 
     // /wallets GET
     getEthereumWalletsList: ethereum.getWalletsList(options),
+
+    // /users/ GET
+    getUser: user.getUser(options),
+
+    // /users/ PATCH
+    patchUser: user.patchUser(options),
   });
