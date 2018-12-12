@@ -1,6 +1,6 @@
 {
   "name": "blockchainiz2",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "A node library to interact more easily with the Blockchainiz API",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "bitcoin",
     "ethereum"
   ],
-  "author": "Utocat (Kevin Bockelandt)",
+  "author": "Utocat",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/utocat/blockchainiz2-lib-nodejs/issues"

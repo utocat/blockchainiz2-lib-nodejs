@@ -38,9 +38,7 @@ const url = require('url');
 exports.postBitcoinNotaries = opt => (functionParameters, callback) => {
   if (
     typeof functionParameters.data !== 'string' ||
-    typeof functionParameters.format !== 'string' ||
-    typeof functionParameters.callbackUrl !== 'string'
-  ) {
+    typeof functionParameters.format !== 'string') {
     callback(new Error('invalid parameters'), null);
     return;
   }
@@ -79,9 +77,7 @@ exports.getBitcoinNotariesList = opt => (functionParameters, callback) => {
 exports.getBitcoinNotariesById = opt => (functionParameters, callback) => {
   const params = new url.URLSearchParams();
 
-  if (
-    typeof functionParameters.notariesId !== 'string'
-  ) {
+  if (typeof functionParameters.notariesId !== 'string') {
     callback(new Error('invalid parameters'), null);
     return;
   }

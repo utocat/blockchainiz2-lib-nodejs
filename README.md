@@ -1,4 +1,3 @@
-
 ![Node Library for Blockchainiz API](./img/blockchainiz.png)
 
 # BLOCKCHAINIZ LIBRARY
@@ -17,9 +16,9 @@ In your project's source code, you need to start by importing the blockchainiz p
 
 ```javascript
 const  blockchainiz = require('blockchainiz2')({
-publicKey:  'your public key',
-privateKey:  'your private key',
-useSandbox:  true,
+    publicKey:  'your public key',
+    privateKey:  'your private key',
+    url:  'https://url-of-blockchainiz-environnement',
 });
 ```
 
@@ -29,7 +28,7 @@ Option | Type | Description
 | ------ | ---- | ----------- |
 | publicKey | string | Your Blockchainiz public key |
 | privateKey | string | Your Blockchainiz private key |
-| useSandbox | bool | True to use the sandbox version of the API |
+| url | string | The API Blockchainiz url (ask our support to have it) |
 
 
 ## License

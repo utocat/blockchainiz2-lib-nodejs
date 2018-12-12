@@ -33,16 +33,14 @@ class Jwt {
       // use the options publicKey to generate jwt from blockchainiz v2
       const rawBody = { apiPublicKey: options.publicKey };
 
-      const message = `${nonce}${config.getApiUrl(options.useSandbox)}authorize${JSON.stringify(
-        rawBody,
-      )}`;
+      const message = `${nonce}${config.getApiUrl(options.useSandbox, options.url)}authorize${JSON.stringify(rawBody)}`;
 
       const hmac = Hmac.generate(options.privateKey, message);
 
       // do the request to blockchainiz on POST /authorize route
       request(
         {
-          url: `${config.getApiUrl(options.useSandbox)}authorize`,
+          url: `${config.getApiUrl(options.useSandbox, options.url)}authorize`,
           headers: {
             'Content-Type': 'application/json',
             'x-Api-Signature': hmac,
@@ -68,6 +66,8 @@ class Jwt {
             fs.writeFileSync(`${__dirname}/jwtStore.json`, authorizationTokenStringified);
 
             resolve(body.authorizationToken);
+          } else {
+            reject(body.message);
           }
         },
       );

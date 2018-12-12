@@ -37,13 +37,13 @@ Helper.queue = queue((task, callback) => {
   Jwt.getJWT(task.opt)
     .then((jwtToken) => {
       const nonce = Date.now();
-      const message = `${nonce}${config.getApiUrl(task.opt.useSandbox)}${task.path}${JSON.stringify(task.rawBody)}`;
+      const message = `${nonce}${config.getApiUrl(task.opt.useSandbox, task.opt.url)}${task.path}${JSON.stringify(task.rawBody)}`;
       const hmac = Hmac.generate(task.opt.privateKey, message);
 
       // make the request to blockchainiz
       request(
         {
-          url: config.getApiUrl(task.opt.useSandbox) + task.path,
+          url: config.getApiUrl(task.opt.useSandbox, task.opt.url) + task.path,
           headers: {
             'x-Api-Key': task.opt.publicKey,
             'x-Api-Signature': hmac,
