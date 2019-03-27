@@ -1,4 +1,3 @@
-const fs = require('fs');
 const request = require('request');
 
 const config = require('../config');
@@ -6,25 +5,10 @@ const Hmac = require('../hmac/hmac');
 
 class Jwt {
   static getJWT(options) {
-    if (Jwt.authorizationToken && Jwt.authorizationToken.jwt) {
-      return Promise.resolve(Jwt.authorizationToken.jwt);
+    if (Jwt.token) {
+      return Promise.resolve(Jwt.token);
     }
-    try {
-      // if jwt Store file not exist create then
-      if (!fs.existsSync(`${__dirname}/jwtStore.json`)) {
-        return Jwt.generateJWT(options);
-      }
-
-      const jwtStored = fs.readFileSync(`${__dirname}/jwtStore.json`, 'utf8');
-
-      // convert jwtStore file to and usable js object
-      Jwt.authorizationToken = JSON.parse(jwtStored);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-
-    // return the jwt
-    return Promise.resolve(Jwt.authorizationToken.jwt);
+    return Jwt.generateJWT(options).then(() => Promise.resolve(Jwt.token));
   }
 
   static generateJWT(options) {
@@ -33,7 +17,10 @@ class Jwt {
       // use the options publicKey to generate jwt from blockchainiz v2
       const rawBody = { apiPublicKey: options.publicKey };
 
-      const message = `${nonce}${config.getApiUrl(options.useSandbox, options.url)}authorize${JSON.stringify(rawBody)}`;
+      const message = `${nonce}${config.getApiUrl(
+        options.useSandbox,
+        options.url,
+      )}authorize${JSON.stringify(rawBody)}`;
 
       const hmac = Hmac.generate(options.privateKey, message);
 
@@ -55,16 +42,7 @@ class Jwt {
           if (err) {
             reject(err);
           } else if (res.statusCode === 200) {
-            Jwt.authorizationToken = {
-              jwt: body.authorizationToken,
-            };
-
-            // convert return to a stringify json object
-            const authorizationTokenStringified = JSON.stringify(Jwt.authorizationToken);
-
-            // then write it on jwt Store file
-            fs.writeFileSync(`${__dirname}/jwtStore.json`, authorizationTokenStringified);
-
+            Jwt.token = body.authorizationToken;
             resolve(body.authorizationToken);
           } else {
             reject(body.message);

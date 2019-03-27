@@ -38,7 +38,8 @@ const url = require('url');
 exports.postBitcoinNotaries = opt => (functionParameters, callback) => {
   if (
     typeof functionParameters.data !== 'string' ||
-    typeof functionParameters.format !== 'string') {
+    typeof functionParameters.format !== 'string'
+  ) {
     callback(new Error('invalid parameters'), null);
     return;
   }

@@ -1,5 +1,5 @@
 const request = require('request');
-const basseUrl = 'http://postb.in';
+const basseUrl = 'https://postb.in';
 
 function getUrl() {
   return new Promise((resolve, reject) => {

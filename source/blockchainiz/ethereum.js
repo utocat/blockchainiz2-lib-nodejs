@@ -76,6 +76,7 @@ exports.callContractsNoConstantFunction = opt => (functionParameters, callback) 
     minedCallback: functionParameters.minedCallback,
     errorCallback: functionParameters.errorCallback,
     gasPrice: functionParameters.gasPrice,
+    value: functionParameters.value,
   };
   // Do the request to blockchainiz via the helper function
   Helper.requestBlockchainiz(
@@ -445,6 +446,25 @@ exports.patchWallet = opt => (functionParameters, callback) => {
     rawBody,
     `ethereum/wallets/${functionParameters.walletAddress}`,
     'PATCH',
+    (err, res, body) => {
+      /* istanbul ignore if */
+      if (err) callback(err, null);
+      else callback(null, body);
+    },
+  );
+};
+
+exports.signData = opt => (parameters, callback) => {
+  if (typeof parameters.data !== 'string' || typeof parameters.walletAddress !== 'string') {
+    callback(new Error('invalid parameters'), null);
+    return;
+  }
+  // Do the request to blockchainiz via the helper function
+  Helper.requestBlockchainiz(
+    opt,
+    { data: parameters.data },
+    `ethereum/wallets/${parameters.walletAddress}/sign`,
+    'POST',
     (err, res, body) => {
       /* istanbul ignore if */
       if (err) callback(err, null);

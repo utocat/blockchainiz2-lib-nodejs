@@ -48,6 +48,25 @@ describe('POST Ethereum wallets', () => {
     });
   });
 });
+describe('POST Ethereum sign data', () => {
+  it('should return signed data', done => {
+    blockchainiz.signData({ data: 'hello', walletAddress: newWallet }, (err, res) => {
+      if (err) {
+        console.log(err);
+      }
+      should.not.exist(err);
+      res.message.should.be.equal('hello');
+      res.messageHash.should.be.equal(
+        '0x50b2c43fd39106bafbba0da34fc430e1f91e3c96ea2acee2bc34119f92b37750',
+      );
+      should.exist(res.r);
+      should.exist(res.v);
+      should.exist(res.s);
+      should.exist(res.signature);
+      done();
+    });
+  });
+});
 describe('GET Wallet balance', () => {
   it('should return 0 balance for the created wallet default unit', done => {
     blockchainiz.getEthereumWalletBalance({ walletAddress: newWallet }, (err, res) => {
@@ -92,18 +111,18 @@ describe('GET Ethereum infos', () => {
   });
 });
 
-describe('GET Ethereum nodes infos', () => {
-  it('should return infos about the Ethereum node used by the API', done => {
-    blockchainiz.getEthereumNodes((err, res) => {
-      if (err) {
-        console.log(err);
-      }
-      should.not.exist(err);
-      res.ethereum.version.should.be.an.Object();
-      done();
-    });
-  });
-});
+// describe('GET Ethereum nodes infos', () => {
+//   it('should return infos about the Ethereum node used by the API', done => {
+//     blockchainiz.getEthereumNodes((err, res) => {
+//       if (err) {
+//         console.log(err);
+//       }
+//       should.not.exist(err);
+//       res.ethereum.version.should.be.an.Object();
+//       done();
+//     });
+//   });
+// });
 
 describe('POST Ethereum contracts', () => {
   it('should return the id of the Contract Uploaded for default wallet', () => {

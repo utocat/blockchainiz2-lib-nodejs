@@ -1,11 +1,13 @@
 const options = {
-  sandboxUrl: 'https://api.blockchainiz.io/sandbox/v2/',
-  prodUrl: 'https://api.blockchainiz.io/v2/',
+  sandboxUrl: 'https://preprod.api.blockchainiz.io/',
+  prodUrl: 'https://api.blockchainiz.io/',
 };
 
 const getApiUrl = (useSandbox, url) => {
   if (url) {
-    return url;
+    let urlOk = url;
+    urlOk += url.endsWith('/') ? '' : '/';
+    return urlOk;
   }
   const apiUrl = useSandbox ? options.sandboxUrl : options.prodUrl;
   return apiUrl;

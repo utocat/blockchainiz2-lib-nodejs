@@ -1,3 +1,12 @@
+## 2.3.0 (2019-03-27)
+
+### Added (1 change)
+* Add signData method, do not store jwt and fix url slash !86
+
+### Other (2 changes)
+* Do not store jwt in filesystem !85
+* update version !83
+
 ## 2.2.0 (2018-10-03)
 
 ### Fixed (2 changes)
@@ -26,6 +35,7 @@
 
 ### Added (1 change)
 * changelog of the nodeJs SDK
+
 
 
 

@@ -83,6 +83,9 @@ module.exports = options =>
     // /wallets GET
     getEthereumWalletsList: ethereum.getWalletsList(options),
 
+    // /wallets/:walletAddress/sign POST
+    signData: ethereum.signData(options),
+
     // /users/ GET
     getUser: user.getUser(options),
 

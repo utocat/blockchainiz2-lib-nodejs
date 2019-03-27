@@ -1,4 +1,4 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.5.4;
 
 contract testSmartContract {
     address   _owner;
@@ -7,15 +7,15 @@ contract testSmartContract {
 
     event statusChange(address indexed _adresse, uint8  _status );
 
-    function testSmartContract(uint8 status) public {
+    constructor(uint8 status) public {
         _owner = msg.sender;
         _status = status;
     }
 
-    function get() public constant returns (address a ,uint8 b,string ) {
+    function get() public view returns (address a ,uint8 b,string memory) {
         return(_owner ,_status ,_version);
     }
-    function getOwner() public constant returns (address owner) {
+    function getOwner() public view returns (address owner) {
         owner = _owner;
     }
 
@@ -24,20 +24,17 @@ contract testSmartContract {
         _;
     }
 
-    function getStatus() public constant returns (uint8 status) {
+    function getStatus() public view returns (uint8 status) {
         status = _status;
     }
 
-    function getVersion() public pure returns (string version) {
+    function getVersion() public pure returns (string memory version) {
         return _version;
     }
 
     function setStatus(uint8 status) public {
         _status = status;
-        statusChange(msg.sender, status);
+        emit statusChange(msg.sender, status);
     }
 
-    function kill() public onlyOwner {
-        selfdestruct(_owner);
-    }
 }
