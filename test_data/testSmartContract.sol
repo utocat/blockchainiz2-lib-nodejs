@@ -32,6 +32,10 @@ contract testSmartContract {
         return _version;
     }
 
+    function pay() public payable {
+        
+    }
+
     function setStatus(uint8 status) public {
         _status = status;
         emit statusChange(msg.sender, status);

@@ -412,6 +412,52 @@ describe('POST Ethereum call function no constant', () => {
       });
   }).timeout(120000);
 
+  it('should call the no constant function with value and check smart contract amount is OK', () => {
+    return postBin
+      .getUrl()
+      .then(data => {
+        blockchainiz.callEthereumNoConstantFunction(
+          {
+            contractId: scId,
+            functionName: 'pay',
+            functionParameters: [],
+            value: 10000,
+            pushedCallback: data.url + '?type=pushed',
+            minedCallback: data.url + '?type=mined',
+          },
+          (err, res) => {
+            if (err) {
+              console.log(err);
+            }
+            functionId2 = res.id;
+            should.exist(res.id);
+            should.not.exist(err);
+          },
+        );
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(functionId2);
+        data.query.type.should.be.equal('pushed');
+        return postBin.waitRequest(data.binId);
+      })
+      .then(data => {
+        data.body.id.should.be.equal(functionId2);
+        data.query.type.should.be.equal('mined');
+        return postBin.deleteBin(data.binId);
+      })
+      .then(() => {
+        blockchainiz.getEthereumNoConstantFunctionById({ functionId: functionId2 }, (err, res) => {
+          res.value.should.be.equal(10000);
+        });
+      })
+      .then(() => {
+        blockchainiz.getEthereumContractsById({ contractId: scId }, (err, res) => {
+          res.amount.should.be.equal(10000);
+        });
+      });
+  }).timeout(120000);
+
   it('should return the id of the transaction to call the no constant function without callback', done => {
     blockchainiz.callEthereumNoConstantFunction(
       {
@@ -925,7 +971,6 @@ describe('GET Ethereum raw transaction list', () => {
 });
 describe('PATCH Ethereum wallets', () => {
   it('should update wallet gasPrice', done => {
-    console.log(newWallet);
     blockchainiz.patchEthereumWallet({ walletAddress: newWallet, gasPrice: 'fast' }, (err, res) => {
       if (err) {
         console.log(err);

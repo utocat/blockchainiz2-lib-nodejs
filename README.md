@@ -79,7 +79,7 @@ blockchainiz.postEthereumContract(
 {
 	language: 'solidity', // REQUIRED: string: language of your Ethereum contract
 	sourceCode: sourceCode, // REQUIRED: string: sourcecode of your Ethereum contract
-	walletAddress : '0x1234567890abcdef' // string: if null = default wallet
+	walletAddress : '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx' // string: if null = default wallet
 	parameters: [15], // number: parameters for your constructor
 	gasPrice: 11000000000, // number (gas price in wei), string ("slow", "standard", "fast"): gas price used for this transaction
 	name: 'testSmartContract', // string: Name of your Ethereum contract
@@ -95,7 +95,7 @@ blockchainiz.postEthereumContract(
 ```javascript
 {
 	id: '5b27a100b989df001152e02e',
-	walletAddress: '0x8f136c013b1c541a7971c9dfbd0866c60f362f0c'
+	walletAddress: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx'
 }
 ```
 
@@ -129,7 +129,7 @@ blockchainiz.getEthereumContractsList(
 			[Object] 
 		],
 		status: 'mined',
-		address: '0x741e12ae8f9845366004202fabcdef',
+		address: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx',
 		language: 'solidity',
 		parameters: [
 			'3'
@@ -192,7 +192,7 @@ blockchainiz.getEthereumContractsById(
 		...
 	],
 	status: 'mined',
-	address: '0x033d4e371e9d8ac6678f796b4559cb66ba635dxx',
+	address: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx',
 	amount: 0,
 	language: 'solidity',
 	parameters: [
@@ -334,6 +334,7 @@ blockchainiz.callEthereumNoConstantFunction(
 	],
 	gasPrice: 11000000000, // number (gas price in wei), string ("slow", "standard", "fast"): gas price used for this transaction
 	walletAddress: // if null = default wallet
+	value: // if null = 0 (no transfer), number (in wei): value in wei to be transferred from the wallet to the contract function 
 	pushedCallback: // string/url
 	minedCallback: // string/url
 },(err, res) => {
@@ -347,7 +348,7 @@ blockchainiz.callEthereumNoConstantFunction(
 ```javascript
 {
 	id: '5b28f5adb989df001152e0f6',
-	walletAddress: '0x8f136c013b1c541a7971c9dfbd0866c60f362f0a'
+	walletAddress: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx'
 }
 ```
 
@@ -454,7 +455,7 @@ blockchainiz.getEthereumEventsBySubscription(
 		id: '5b28f612b989df001152e0f9',
 		eventName: 'statusChange',
     parameters: {
-  		param1: '0x8f136c013b1c541a7971c9dfbd0866c60f362f0a',
+  		param1: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx',
   		param2: '10'
   	},
 		contractId: '5b28f59eb989df001152e0f4',
@@ -486,7 +487,7 @@ blockchainiz.getEthereumEvent(
 	id: '5b28f612b989df001152e0f9',
 	eventName: 'statusChange',
 	parameters: {
-		param1: '0x8f136c013b1c541a7971c9dfbd0866c60f362f0a',
+		param1: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx',
 		param2: '10'
 	},
 	contract: '5b28f59eb989df001152e0f4',
@@ -511,7 +512,7 @@ blockchainiz.postEthereumWallets(
 #### Response
 ```javascript
 {
-	walletAddress: '0x271c4832fa1c0dc541a910afa47facb484dc8bce' // your new wallet address
+	walletAddress: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx' // your new wallet address
 }
 ```
 
@@ -555,7 +556,7 @@ blockchainiz.patchUser(
 ```javascript
 blockchainiz.getEthereumWalletBalance(
 {
-	walletAddress: '0x271c4832fa1c0dc541a910afa47facb484dc8bce', // the wallet address
+	walletAddress: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx', // the wallet address
 	unit: 'wei'// default = wei - possible ('Gwei','Kwei','Mwei','babbage','ether','femtoether','finney','gether','grand','gwei','kether','kwei','lovelace','mether','micro','microether','milli','milliether','mwei','nano','nanoether','noether','picoether','shannon','szabo','tether','wei')
 }, (err, res) => {
 	if (err) {
@@ -567,7 +568,7 @@ blockchainiz.getEthereumWalletBalance(
 ```javascript
 {
 	balance: '11234654365',
-  	address: '0x271c4832fa1c0dc541a910afa47facb484dc8bce',
+  	address: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx',
   	unit: 'wei'
 }
 ```
@@ -585,15 +586,40 @@ blockchainiz.getEthereumWalletsList(
 ```javascript
 {
 	addresses:
-    [ { address: '0x8f136c013b1c541a7971c9dfbd0866c60f362f0a',
+    [ { address: '0x8f136c013b1c541a7971c9dfbd0866c60f3xxxxx',
        gasPrice: 'standard' },
-     { address: '0x2bc2239448959a1ae54747c28827b2ad7d20006c' },
-     { address: '0x60a30530ec6b7b2ef782d48863f3b6f2146075cb' },
-     { address: '0x7a2cc501c800edb961cced0cae4b073b0b320ab3' },
-     { address: '0xb9cffdf7058662d547816cec29e235702aa7c965' },
-	 { address: '0x465b14a5cd0cab3263ca42b3f4881f1501b24ba4' }
+     { address: '0x2bc2239448959a1ae54747c28827b2ad7d2xxxxx' },
+     { address: '0x60a30530ec6b7b2ef782d48863f3b6f2146xxxxx' },
+     { address: '0x7a2cc501c800edb961cced0cae4b073b0b3xxxxx' },
+     { address: '0xb9cffdf7058662d547816cec29e235702aaxxxxx' },
+     { address: '0x465b14a5cd0cab3263ca42b3f4881f1501bxxxxx' }
 	]
-	defaultAddress: '0x2bc2239448959a1ae54747c28827b2ad7d20006c'
+	defaultAddress: '0x2bc2239448959a1ae54747c28827b2ad7d2xxxxx'
+}
+```
+
+### Get the signature of a data from one of your wallet
+```javascript
+blockchainiz.signData(
+	{
+		data: 'Hello world', // type: string, data to sign
+		walletAddress: '0x69e38d0f6bd0fb0b43f8dec3e806238e01exxxxx' // type: string, an ethereum address to sign data with
+	},
+(err, res) => {
+	if (err) {
+		console.log(err);
+	}
+});
+```
+#### Response
+```javascript
+{
+	message: 'Hello world',
+	messageHash: "0x8144a6fa26be252b86456491fbcd43c1de7e022241845ffea1c3df066f7cfede",
+	v: "0x1c",
+	r: "0x657123506d5f652742e3453e822a3d1686d845a3dc85608d4dcae888be880aed",
+	s: "0x3c7dc96f44afc9105bd32318b3a4d7c528849f849d00aa22e57e3a99e1918b7c",
+	signature:"0x657123506d5f652742e3453e822a3d1686d845a3dc85608d4dcae888be880aed3c7dc96f44afc9105bd32318b3a4d7c528849f849d00aa22e57e3a99e1918b7c1c",
 }
 ```
 
