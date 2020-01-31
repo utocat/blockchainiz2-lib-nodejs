@@ -34,18 +34,18 @@
   "homepage": "https://github.com/utocat/blockchainiz2-lib-nodejs#readme",
   "dependencies": {
     "async": "^2.6.1",
-    "coveralls": "^3.0.2",
     "dotenv": "^2.0.0",
-    "nyc": "^12.0.2",
-    "prettier": "^1.10.2",
     "request": "^2.87.0"
   },
   "devDependencies": {
     "@utocat/deploy-tools": "latest",
+    "coveralls": "^3.0.9",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.11.0",
     "mocha": "^4.1.0",
+    "nyc": "^12.0.2",
+    "prettier": "^1.19.1",
     "should": "^10.0.0"
   }
 }
