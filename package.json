@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/utocat/blockchainiz2-lib-nodejs#readme",
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^3.2.2",
     "dotenv": "^2.0.0",
     "request": "^2.87.0"
   },
